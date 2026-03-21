@@ -28,4 +28,14 @@ router.get('/rooms', (req, res) => {
   });
 });
 
+router.get('/payments', (req, res) => {
+  const { tenantInvoices } = require('../data/mockData');
+  
+  res.render('tenant/payments', { 
+    layout: 'tenant',
+    invoices: tenantInvoices,
+    isPayments: true 
+  });
+});
+
 module.exports = router;

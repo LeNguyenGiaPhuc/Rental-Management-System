@@ -84,5 +84,25 @@ module.exports = {
     amenities: ["Wifi", "Heating", "Furnished", "Laundry"],
     landlord: "John Landlord",
     contact: "1234567890"
-  }
+  },
+
+  tenantInvoices : [
+  {
+    id: "INV-2026-04",
+    room: "Room 102",
+    amount: 850,
+    dueDate: "4/1/2026",
+    status: "Pending",
+    method: "-",
+    paidDate: "-"
+  },
+  {
+    id: "INV-2026-03",
+    room: "Room 102",
+    amount: 850,
+    dueDate: "3/1/2026",
+    status: "Paid",
+    method: "Bank Transfer",
+    paidDate: "2/28/2026"
+  }]
 };

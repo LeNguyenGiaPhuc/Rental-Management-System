@@ -1,0 +1,100 @@
+<div class="mb-4">
+  <h3 class="fw-bold d-flex align-items-center text-dark m-0">
+    <i class="bi bi-credit-card text-primary me-3 fs-3"></i> My Invoices
+  </h3>
+</div>
+
+<div class="card border-0 shadow-sm rounded-4 p-4">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="text-muted small text-uppercase">
+        <tr>
+          <th>Invoice ID</th>
+          <th>Room</th>
+          <th>Amount</th>
+          <th>Due Date</th>
+          <th>Status</th>
+          <th class="text-end">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each invoices}}
+        <tr>
+          <td class="fw-semibold text-dark">{{id}}</td>
+          <td>{{room}}</td>
+          <td class="fw-bold text-primary">$ {{amount}}</td>
+          <td>{{dueDate}}</td>
+          <td>
+            <span class="badge rounded-pill px-3 py-2 fw-normal
+              {{#if (eq status "Pending")}}bg-warning bg-opacity-10 text-warning
+              {{else if (eq status "Paid")}}bg-success bg-opacity-10 text-success
+              {{else}}bg-danger bg-opacity-10 text-danger{{/if}}">
+              {{status}}
+            </span>
+          </td>
+          <td class="text-end">
+            {{#if (eq status "Pending")}}
+              <button class="btn btn-primary btn-sm rounded-3 fw-bold px-3 py-2 shadow-sm" onclick="openPaymentModal('{{id}}', {{amount}})">
+                Pay Now
+              </button>
+            {{else}}
+              <button class="btn btn-light btn-sm rounded-3 fw-semibold px-3 py-2 text-muted" disabled>
+                <i class="bi bi-check-circle me-1"></i> Paid
+              </button>
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<div id="paymentModal" class="modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; align-items: center; justify-content: center;">
+  <div class="modal-box bg-white p-4 rounded-4 shadow" style="width: 100%; max-width: 450px; position: relative;">
+    
+    <button class="btn-close position-absolute top-0 end-0 m-3" onclick="closePaymentModal()"></button>
+
+    <h4 class="fw-bold mb-1 text-center text-dark">Select Payment Method</h4>
+    <p class="text-center text-muted small mb-4">You are paying <strong class="text-primary fs-5" id="modalAmount">$0</strong> for invoice <strong id="modalInvoiceId">---</strong></p>
+
+    <form method="POST" action="#">
+      
+      <div class="d-flex flex-column gap-3 mb-4">
+        <label class="border rounded-3 p-3 d-flex align-items-center cursor-pointer" style="cursor: pointer;">
+          <input type="radio" name="paymentMethod" value="Bank Transfer" class="form-check-input me-3" checked>
+          <div class="d-flex flex-column">
+            <span class="fw-bold">Bank Transfer</span>
+            <span class="small text-muted">Direct transfer to Landlord's account</span>
+          </div>
+          <i class="bi bi-bank ms-auto fs-4 text-muted"></i>
+        </label>
+
+        <label class="border rounded-3 p-3 d-flex align-items-center cursor-pointer" style="cursor: pointer;">
+          <input type="radio" name="paymentMethod" value="Credit Card" class="form-check-input me-3">
+          <div class="d-flex flex-column">
+            <span class="fw-bold">Credit/Debit Card</span>
+            <span class="small text-muted">Visa, Mastercard, JCB</span>
+          </div>
+          <i class="bi bi-credit-card-2-front ms-auto fs-4 text-muted"></i>
+        </label>
+      </div>
+
+      <button type="submit" class="btn btn-dark w-100 py-2 fw-bold rounded-3 fs-5">
+        Confirm Payment
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openPaymentModal(invoiceId, amount) {
+    document.getElementById("paymentModal").style.display = "flex";
+    document.getElementById("modalInvoiceId").innerText = invoiceId;
+    document.getElementById("modalAmount").innerText = "$ " + amount;
+  }
+
+  function closePaymentModal() {
+    document.getElementById("paymentModal").style.display = "none";
+  }
+</script>
