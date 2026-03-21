@@ -1,15 +1,53 @@
-<div id="loginModal" class="modal-overlay" style="display:none;">
-  <div class="modal-box">
-    <span class="close-btn" onclick="closeModal()">×</span>
+<div id="loginModal" class="modal-overlay" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1050; align-items: center; justify-content: center;">
+  <div class="modal-box bg-white p-4 rounded-4 shadow" style="width: 100%; max-width: 400px; position: relative;">
+    
+    <button class="btn-close position-absolute top-0 end-0 m-3" onclick="closeModal()"></button>
 
-    <h3>Login</h3>
+    <div id="loginFormContainer">
+      <h4 class="fw-bold mb-4 text-center text-dark">Login to RoomRental</h4>
+      <form method="POST" action="/auth/login">
+        <div class="mb-3">
+          <input type="text" name="phone" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Phone Number" required />
+        </div>
+        <div class="mb-3">
+          <input type="password" name="password" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Password" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3 mt-2">Login</button>
+        <div class="text-center mt-3">
+          <a href="javascript:void(0)" class="text-decoration-none small fw-semibold" onclick="toggleForgotForm()">Forgot password?</a>
+        </div>
+      </form>
+    </div>
 
-    <form method="POST" action="/auth/login">
-      <input name="phone" placeholder="Phone Number (e.g., 1234567890)" required />
-      
-      <input name="password" type="password" placeholder="Password" required />
-      <button type="submit" class="btn btn-primary w-100 mt-2">Login</button>
-    </form>
+    <div id="forgotPasswordFormContainer" style="display: none;">
+      <h4 class="fw-bold mb-4 text-center text-dark">Reset Password</h4>
+      <form method="POST" action="/auth/reset-password">
+        <div class="mb-3">
+          <input type="email" name="email" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Enter your Email" required />
+        </div>
+        
+        <div class="d-flex gap-2 mb-3">
+          <input type="text" name="otp" class="form-control bg-light border-0 py-2 shadow-none" placeholder="OTP Code" required />
+          <button type="button" class="btn btn-outline-primary text-nowrap fw-semibold">Get OTP</button>
+        </div>
+
+        <div class="mb-3">
+          <input type="password" name="newPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="New Password" required />
+        </div>
+        
+        <div class="mb-4">
+          <input type="password" name="confirmPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Confirm New Password" required />
+        </div>
+
+        <button type="submit" class="btn btn-dark w-100 py-2 fw-bold rounded-3">Update Password</button>
+        
+        <div class="text-center mt-3">
+          <a href="javascript:void(0)" class="text-decoration-none small text-muted fw-medium" onclick="toggleForgotForm()">
+            <i class="bi bi-arrow-left me-1"></i> Back to Login
+          </a>
+        </div>
+      </form>
+    </div>
 
   </div>
 </div>

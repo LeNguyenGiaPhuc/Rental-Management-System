@@ -9,27 +9,39 @@
 
 <body>
 
-  <!-- Navbar -->
   <nav class="navbar navbar-light bg-white border-bottom px-4 fixed-top shadow-sm">
     <span class="navbar-brand fw-bold">RoomRental</span>
     <button onclick="openModal()" class="btn btn-outline-dark btn-sm">Login</button>
 </nav>
 
-  <!-- Content -->
   {{{body}}}
 
-  <!-- Modal -->
   {{> loginModal}}
 
 </body>
 </html>
 
 <script>
-function openModal() {
-  document.getElementById("loginModal").style.display = "flex";
-}
+  function openModal() {
+    document.getElementById("loginModal").style.display = "flex";
+    document.getElementById("loginFormContainer").style.display = "block";
+    document.getElementById("forgotPasswordFormContainer").style.display = "none";
+  }
 
-function closeModal() {
-  document.getElementById("loginModal").style.display = "none";
-}
+  function closeModal() {
+    document.getElementById("loginModal").style.display = "none";
+  }
+
+  function toggleForgotForm() {
+    const loginForm = document.getElementById("loginFormContainer");
+    const forgotForm = document.getElementById("forgotPasswordFormContainer");
+    
+    if (loginForm.style.display === "none") {
+      loginForm.style.display = "block";
+      forgotForm.style.display = "none";
+    } else {
+      loginForm.style.display = "none";
+      forgotForm.style.display = "block";
+    }
+  }
 </script>
