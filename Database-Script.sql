@@ -1,5 +1,4 @@
 -- 1. TẠO CÁC KIỂU DỮ LIỆU CỐ ĐỊNH (ENUMS)
--- Điều này giúp dữ liệu luôn chuẩn xác, không bị gõ sai chính tả
 CREATE TYPE user_role AS ENUM ('Admin', 'Tenant', 'Guest');
 CREATE TYPE room_status AS ENUM ('Available', 'Occupied', 'Maintenance');
 CREATE TYPE contract_status AS ENUM ('Active', 'Terminated');
@@ -11,7 +10,7 @@ CREATE TYPE priority_level AS ENUM ('Low', 'Medium', 'High');
 
 -- 2. TẠO BẢNG USERS (Tài khoản)
 CREATE TABLE users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(), -- Dùng UUID cho bảo mật
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
     phone VARCHAR(20) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
@@ -28,7 +27,7 @@ CREATE TABLE users (
 -- 3. TẠO BẢNG ROOMS (Phòng trọ)
 CREATE TABLE rooms (
     id SERIAL PRIMARY KEY,
-    room_number VARCHAR(10) UNIQUE NOT NULL, -- Ví dụ: '101', '102'
+    room_number VARCHAR(10) UNIQUE NOT NULL, 
     floor INT,
     price DECIMAL(10,2) NOT NULL,
     status room_status DEFAULT 'Available',
@@ -51,7 +50,7 @@ CREATE TABLE contracts (
 -- 5. TẠO BẢNG INVOICES (Hóa đơn)
 CREATE TABLE invoices (
     id SERIAL PRIMARY KEY,
-    invoice_code VARCHAR(20) UNIQUE NOT NULL, -- Ví dụ: 'INV-2026-04'
+    invoice_code VARCHAR(20) UNIQUE NOT NULL, 
     tenant_id UUID REFERENCES users(id) ON DELETE CASCADE,
     room_id INT REFERENCES rooms(id) ON DELETE SET NULL,
     amount DECIMAL(10,2) NOT NULL,
@@ -97,6 +96,24 @@ INSERT INTO contracts (tenant_id, room_id, start_date, end_date, status) VALUES
   (SELECT id FROM rooms WHERE room_number = '401'), 
   '2024-03-15', '2025-03-15', 'Active'
 );
+
+--THÊM CỘT is_active VÀO BẢNG USERS ĐỂ QUẢN LÝ TÌNH TRẠNG HOẠT ĐỘNG CỦA NGƯỜI DÙNG
+ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
+
+--THÊM CỘT refresh_token VÀO BẢNG USERS ĐỂ LƯU TRỮ TOKEN LÀM MỚI CHO XÁC THỰC
+ALTER TABLE users ADD COLUMN refresh_token TEXT;
+
+--THÊM CỘT user_id VÀO BẢNG OTP_TOKENS ĐỂ LIÊN KẾT MÃ OTP VỚI NGƯỜI DÙNG CỤ THỂ
+ALTER TABLE otp_tokens ADD COLUMN user_id UUID;
+
+--THÊM BẢNG LOGIN_LOGS ĐỂ THEO DÕI LỊCH SỬ ĐĂNG NHẬP CỦA NGƯỜI DÙNG
+CREATE TABLE login_logs (
+    id SERIAL PRIMARY KEY,
+    user_id UUID,
+    login_time TIMESTAMPTZ DEFAULT NOW(),
+    ip_address VARCHAR(50)
+);
+
 
 ---------------DỮ LIỆU MẪU CHO TESTING----------------
 
