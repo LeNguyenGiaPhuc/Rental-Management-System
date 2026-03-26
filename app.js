@@ -15,7 +15,6 @@ app.use(session({
   cookie: { maxAge: 1000 * 60 * 60 * 24 }
 }));
 
-// expose session user to templates
 app.use((req, res, next) => {
   res.locals.currentUser = req.session ? req.session.user : null;
   next();

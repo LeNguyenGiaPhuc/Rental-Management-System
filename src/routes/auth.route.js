@@ -21,11 +21,9 @@ router.post('/login', async (req, res) => {
 
     let passwordMatches = false;
 
-    // If stored password looks like a bcrypt hash, use bcrypt.compare
     if (stored.startsWith('$2')) {
       passwordMatches = await bcrypt.compare(password, stored);
     } else {
-      // fallback: direct compare (for existing test data)
       passwordMatches = stored === password;
     }
 

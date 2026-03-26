@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
 
-// Protect tenant routes
 router.use(auth.ensureAuthenticated, auth.ensureRole('Tenant'));
 
 router.get('/', (req, res) => {

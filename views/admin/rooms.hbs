@@ -1,55 +1,197 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="fw-bold d-flex align-items-center m-0 text-dark">
-    <i class="bi bi-building text-primary me-3 fs-3"></i> Manage Rooms
-  </h3>
-  <button class="btn btn-dark fw-semibold px-4 py-2 rounded-pill">
-    <i class="bi bi-plus"></i> Add Room
-  </button>
+<div class="container-fluid py-4">
+
+    {{#if error}}
+    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+        <strong>Error!</strong> {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{/if}}
+    {{#if success}}
+    <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+        <strong>Success!</strong> {{success}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{/if}}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0"><i class="bi bi-building me-2"></i>Manage Rooms</h3>
+        <button class="btn btn-dark fw-semibold px-4 rounded-pill" data-bs-toggle="modal" data-bs-target="#addRoomModal">
+            + Add Room
+        </button>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th class="ps-4 py-3">Room</th>
+                        <th class="py-3">Floor</th> 
+                        <th class="py-3">Price</th>
+                        <th class="py-3">Status</th>
+                        <th class="py-3">Current Tenant</th>
+                        <th class="text-end pe-4 py-3">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#each rooms}}
+                    <tr>
+                        <td class="ps-4 fw-bold">Room {{room_number}}</td>
+                        <td>Floor {{floor}}</td>
+                        <td class="text-primary fw-semibold">{{formatVND price}}</td>
+                        <td>
+                            <span class="badge rounded-pill 
+                                {{#if (eq status "Available")}}bg-success
+                                {{else if (eq status "Occupied")}}bg-danger
+                                {{else}}bg-warning{{/if}}">
+                                {{status}}
+                            </span>
+                        </td>
+                        <td class="fw-medium text-dark">
+                            {{#if current_tenant}}
+                                <i class="bi bi-person-fill me-1 text-secondary"></i> {{current_tenant}}
+                            {{else}}
+                                <span class="text-muted">-</span>
+                            {{/if}}
+                        </td>
+                        <td class="text-end pe-4">
+                            {{#if (eq status "Occupied")}}
+                                <button class="btn btn-sm btn-outline-secondary fw-semibold" disabled title="Cannot edit an occupied room">
+                                    <i class="bi bi-lock-fill me-1"></i> Edit
+                                </button>
+                            {{else}}
+                                <button class="btn btn-sm btn-outline-secondary fw-semibold edit-btn"
+                                    data-id="{{room_number}}"
+                                    data-floor="{{floor}}"
+                                    data-price="{{price}}"
+                                    data-status="{{status}}"
+                                    data-desc="{{description}}"
+                                    data-bs-toggle="modal" data-bs-target="#editRoomModal">
+                                    Edit
+                                </button>
+                            {{/if}}
+                        </td>
+                    </tr>
+                    {{/each}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
 
-<div class="card border-0 shadow-sm rounded-4 p-4">
-  
-  <div class="input-group mb-4 bg-light rounded-3 px-3 py-2 border-0 w-100">
-    <span class="input-group-text bg-transparent border-0 text-muted"><i class="bi bi-search"></i></span>
-    <input type="text" class="form-control bg-transparent border-0 shadow-none" placeholder="Search rooms...">
-  </div>
-
-  <div class="table-responsive">
-    <table class="table table-borderless align-middle mb-0">
-      <thead class="text-muted border-bottom">
-        <tr>
-          <th class="fw-medium pb-3">Room</th>
-          <th class="fw-medium pb-3">Location</th>
-          <th class="fw-medium pb-3">Price</th>
-          <th class="fw-medium pb-3 text-center">Status</th>
-          <th class="fw-medium pb-3">Current Tenant</th>
-          <th class="fw-medium pb-3 text-center">Actions</th>
-        </tr>
-      </thead>
-      
-      <tbody>
-        {{#each rooms}}
-        <tr class="border-bottom">
-          <td class="py-3 fw-bold text-dark">{{id}}</td>
-          <td class="py-3 text-muted">{{location}}</td>
-          <td class="py-3 text-muted">{{price}}/mo</td>
-          <td class="py-3 text-center">
+<div class="modal fade" id="addRoomModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h4 class="modal-title fw-bold">Add New Room</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
             
-            <span class="badge rounded-pill px-3 py-2 fw-normal
-              {{#if (eq status "Available")}}bg-dark text-white
-              {{else if (eq status "Pending")}}bg-white border text-dark shadow-sm
-              {{else}}bg-secondary bg-opacity-10 text-dark{{/if}}">
-              {{status}}
-            </span>
-
-          </td>
-          <td class="py-3 text-muted">{{tenant}}</td>
-          <td class="py-3 text-center">
-            <a href="#" class="text-dark fw-bold text-decoration-none">Edit</a>
-          </td>
-        </tr>
-        {{/each}}
-      </tbody>
-    </table>
-  </div>
+            <form action="/admin/rooms/add" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Room Number <span class="text-danger">*</span></label>
+                            <input type="text" name="room_number" class="form-control" required placeholder="e.g.: 101">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Floor Number (Max: 6) <span class="text-danger">*</span></label>
+                            <input type="number" name="floor" class="form-control" required min="1" max="6" placeholder="From 1 - 6">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Rental Price (VND) <span class="text-danger">*</span></label>
+                            <input type="number" name="price" class="form-control" required placeholder="e.g.: 3500000">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Initial Status</label>
+                            <select name="status" class="form-select">
+                                <option value="Available">Available (Vacant)</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Room Description</label>
+                            <textarea name="description" class="form-control" rows="3" placeholder="Enter amenities description..."></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Room Image</label>
+                            <input type="file" name="room_image" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 pe-4 pb-4">
+                    <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-dark fw-bold px-4">Save New Room</button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<div class="modal fade" id="editRoomModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h4 class="modal-title fw-bold">Edit Room <span id="editRoomTitle" class="text-primary"></span></h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            
+            <form id="editRoomForm" method="POST" enctype="multipart/form-data">
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Floor Number (Max: 6)</label>
+                            <input type="number" name="floor" id="editFloor" class="form-control" required min="1" max="6">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Rental Price (VND)</label>
+                            <input type="number" name="price" id="editPrice" class="form-control" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Status</label>
+                            <select name="status" id="editStatus" class="form-select">
+                                <option value="Available">Available</option>
+                                <option value="Maintenance">Maintenance</option>
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Room Description</label>
+                            <textarea name="description" id="editDesc" class="form-control" rows="3"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label fw-semibold">Upload New Image</label>
+                            <input type="file" name="room_image" class="form-control" accept="image/*">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-top-0 pt-0 px-4 pb-4 d-flex justify-content-between">
+                    <button type="submit" id="btnDeleteRoom" class="btn btn-outline-danger fw-semibold" onclick="return confirm('Are you sure you want to permanently delete this room?')">
+                        <i class="bi bi-trash me-1"></i> Delete Room
+                    </button>
+                    <div>
+                        <button type="button" class="btn btn-light fw-semibold me-2" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary fw-bold">Update</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const editBtns = document.querySelectorAll('.edit-btn');
+    editBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            document.getElementById('editRoomTitle').innerText = id;
+            document.getElementById('editRoomForm').action = '/admin/rooms/edit/' + id;
+            document.getElementById('btnDeleteRoom').setAttribute('formaction', '/admin/rooms/delete/' + id);
+            document.getElementById('editFloor').value = this.getAttribute('data-floor');
+            document.getElementById('editPrice').value = this.getAttribute('data-price');
+            document.getElementById('editStatus').value = this.getAttribute('data-status');
+            document.getElementById('editDesc').value = this.getAttribute('data-desc');
+        });
+    });
+});
+</script>

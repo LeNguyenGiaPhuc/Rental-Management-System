@@ -126,6 +126,8 @@ INSERT INTO rooms (room_number, floor, price, status, description) VALUES
 ('101', 1, 800, 'Available', 'Phòng tầng trệt, có cửa sổ lớn'),
 ('102', 1, 850, 'Available', 'Phòng góc, thoáng mát'),
 ('201', 2, 900, 'Available', 'Phòng có ban công riêng');
+
+INSERT INTO rooms (room_number, floor, price, status, description) VALUES
 ('103', 1, 3500000, 'Available', 'Phòng trệt giá rẻ, diện tích nhỏ gọn phù hợp 1 người ở, tiện dắt xe ra vào.'),
 ('202', 2, 4500000, 'Occupied', 'Phòng tiêu chuẩn, khu vực yên tĩnh, dân trí cao, có sẵn giường và tủ quần áo.'),
 ('301', 3, 6000000, 'Available', 'Phòng mặt tiền, ban công rộng rãi cực chill, ngắm cảnh đường phố về đêm.'),

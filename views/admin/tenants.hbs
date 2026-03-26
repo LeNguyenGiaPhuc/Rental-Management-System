@@ -1,39 +1,186 @@
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h3 class="fw-bold d-flex align-items-center m-0 text-dark">
-    <i class="bi bi-person-check text-primary me-3 fs-3"></i> Manage Tenants
-  </h3>
-</div>
-
-<div class="row g-4">
-  {{#each tenants}}
-  <div class="col-md-4">
-    <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
-      
-      <div class="d-flex justify-content-between align-items-center mb-4">
-        <h5 class="fw-bold mb-0 text-dark">{{name}}</h5>
-        <span class="badge rounded-pill px-3 py-2 fw-normal 
-          {{#if (eq status "Paid")}}bg-dark text-white
-          {{else}}bg-secondary bg-opacity-10 text-dark{{/if}}">
-          {{status}}
-        </span>
-      </div>
-      
-      <div class="text-muted mb-4" style="font-size: 0.95rem;">
-        <p class="mb-2"><i class="bi bi-telephone me-3"></i>{{phone}}</p>
-        <p class="mb-2"><i class="bi bi-envelope me-3"></i>{{email}}</p>
-        <p class="mb-0"><i class="bi bi-building me-3"></i>{{room}}</p>
-      </div>
-
-      <hr class="text-muted opacity-25 mb-3">
-
-      <p class="text-muted small mb-4">Move-in: {{moveIn}}</p>
-
-      <div class="d-flex gap-2 mt-auto">
-        <button class="btn btn-outline-secondary rounded-3 py-2 w-50">View Details</button>
-        <button class="btn btn-light bg-transparent rounded-3 py-2 w-50 fw-bold text-dark border-0">Contact</button>
-      </div>
-
+<div class="container-fluid py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0"><i class="bi bi-person-lines-fill me-2"></i>Manage Tenants</h3>
     </div>
-  </div>
-  {{/each}}
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+        {{#each tenants}}
+        <div class="col">
+            <div class="card border-0 shadow-sm rounded-4 h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="fw-bold mb-0 text-dark">{{full_name}}</h5>
+                        <span class="badge rounded-pill {{#if is_active}}bg-dark{{else}}bg-secondary{{/if}} px-3">
+                            {{#if is_active}}Active{{else}}Inactive{{/if}}
+                        </span>
+                    </div>
+
+                    <div class="mb-3 text-muted">
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-telephone text-secondary me-3"></i>
+                            <span>{{phone}}</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="bi bi-envelope text-secondary me-3"></i>
+                            <span class="text-truncate">{{email}}</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-door-open text-secondary me-3"></i>
+                            <span>Room {{#if room_number}}<strong class="text-dark">{{room_number}}</strong>{{else}}<em>Chưa gán</em>{{/if}}</span>
+                        </div>
+                    </div>
+
+                    <hr class="text-muted opacity-25">
+
+                    <div class="mb-4 text-muted small">
+                        Move-in: <span class="fw-medium text-dark move-in-date">{{move_in_date}}</span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-dark fw-semibold flex-grow-1 rounded-3 view-details-btn"
+                            data-name="{{full_name}}"
+                            data-email="{{email}}"
+                            data-phone="{{phone}}"
+                            data-room="{{room_number}}"
+                            data-movein="{{move_in_date}}"
+                            data-dob="{{dob}}"
+                            data-hometown="{{hometown}}"
+                            data-gender="{{gender}}"
+                            data-cccd="{{cccd}}"
+                            data-avatar="{{avatar_url}}"
+                            data-bs-toggle="modal" data-bs-target="#tenantDetailModal">
+                            View Details
+                        </button>
+                        <a href="tel:{{phone}}" class="btn btn-dark fw-bold px-4 rounded-3">
+                            Contact
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {{else}}
+        <div class="col-12 text-center py-5 text-muted">
+            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+            <p>Chưa có người thuê nào trong hệ thống.</p>
+        </div>
+        {{/each}}
+    </div>
 </div>
+
+<div class="modal fade" id="tenantDetailModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold">Thông tin chi tiết</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-4 text-center">
+                
+                <div class="mb-3">
+                    <img id="detailAvatar" src="/img/default-avatar.png" alt="Avatar" class="rounded-circle object-fit-cover shadow-sm border" width="100" height="100">
+                </div>
+                
+                <h4 id="detailName" class="fw-bold mb-1">Tên Khách Thuê</h4>
+                <p class="text-muted small mb-4">Tenant</p>
+
+                <div class="bg-light rounded-4 p-3 text-start">
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Email</div>
+                        <div class="col-8 fw-medium" id="detailEmail"></div>
+                    </div>
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Số ĐT</div>
+                        <div class="col-8 fw-medium" id="detailPhone"></div>
+                    </div>
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Phòng</div>
+                        <div class="col-8 fw-bold text-primary" id="detailRoom"></div>
+                    </div>
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Ngày dọn vào</div>
+                        <div class="col-8 fw-medium" id="detailMoveIn"></div>
+                    </div>
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Giới tính</div>
+                        <div class="col-8 fw-medium" id="detailGender"></div>
+                    </div>
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Ngày sinh</div>
+                        <div class="col-8 fw-medium" id="detailDob"></div>
+                    </div>
+                    <div class="row mb-2 pb-2 border-bottom">
+                        <div class="col-4 text-muted small fw-semibold">Số CCCD</div>
+                        <div class="col-8 fw-medium" id="detailCccd"></div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 text-muted small fw-semibold">Quê quán</div>
+                        <div class="col-8 fw-medium" id="detailHometown"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer border-top-0 pt-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-light fw-semibold px-5" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+
+    const moveInElements = document.querySelectorAll('.move-in-date');
+    moveInElements.forEach(el => {
+        const rawDate = el.innerText;
+        if (rawDate && rawDate.trim() !== '') {
+            const dateObj = new Date(rawDate);
+            if (!isNaN(dateObj)) {
+                el.innerText = dateObj.toLocaleDateString('vi-VN');
+            }
+        } else {
+            el.innerText = 'Chưa xác định';
+        }
+    });
+
+    const viewBtns = document.querySelectorAll('.view-details-btn');
+    viewBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+
+            const formatData = (val) => (val && val !== 'null' && val.trim() !== '') ? val : '<em class="text-black-50">Chưa cập nhật</em>';
+
+            let dobText = this.getAttribute('data-dob');
+            if (dobText && dobText !== 'null') {
+                dobText = new Date(dobText).toLocaleDateString('vi-VN');
+            } else {
+                dobText = '<em class="text-black-50">Chưa cập nhật</em>';
+            }
+
+            let moveInText = this.getAttribute('data-movein');
+            if (moveInText && moveInText !== 'null') {
+                moveInText = new Date(moveInText).toLocaleDateString('vi-VN');
+            } else {
+                moveInText = '<em class="text-black-50">Chưa xác định</em>';
+            }
+
+            let avatarUrl = this.getAttribute('data-avatar');
+            let name = this.getAttribute('data-name');
+            if (!avatarUrl || avatarUrl === 'null' || avatarUrl.trim() === '') {
+                avatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random&color=fff&size=128`;
+            }
+
+            document.getElementById('detailAvatar').src = avatarUrl;
+            document.getElementById('detailName').innerText = name;
+            
+            document.getElementById('detailEmail').innerHTML = formatData(this.getAttribute('data-email'));
+            document.getElementById('detailPhone').innerHTML = formatData(this.getAttribute('data-phone'));
+            document.getElementById('detailRoom').innerHTML = this.getAttribute('data-room') || '<em class="text-black-50">Chưa gán</em>';
+            document.getElementById('detailMoveIn').innerHTML = moveInText;
+            
+            document.getElementById('detailGender').innerHTML = formatData(this.getAttribute('data-gender'));
+            document.getElementById('detailDob').innerHTML = dobText;
+            document.getElementById('detailCccd').innerHTML = formatData(this.getAttribute('data-cccd'));
+            document.getElementById('detailHometown').innerHTML = formatData(this.getAttribute('data-hometown'));
+        });
+    });
+});
+</script>
