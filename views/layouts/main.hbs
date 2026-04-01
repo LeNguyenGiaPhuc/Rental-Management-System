@@ -45,3 +45,108 @@
     }
   }
 </script>
+
+<script>
+  // Request OTP from the modal forgot-password form
+  let otpCooldownTimer = null;
+  function showForgotMessage(text, isError = true) {
+    const el = document.getElementById('forgotMsg');
+    if (!el) return;
+    el.style.display = 'block';
+    el.style.color = isError ? '#d63384' : '#198754';
+    el.textContent = text;
+  }
+
+  function clearForgotMessage() {
+    const el = document.getElementById('forgotMsg');
+    if (!el) return;
+    el.style.display = 'none';
+    el.textContent = '';
+  }
+
+  async function requestOtpFromModal() {
+    const emailEl = document.getElementById('forgotEmail');
+    const btn = document.getElementById('btnGetOtp');
+    if (!emailEl || !btn) return;
+
+      let email = (emailEl.value || '').trim();
+      // fallback 1: attribute value (in case server rendered value attribute but property empty)
+      if (!email) {
+        const attr = (emailEl.getAttribute && emailEl.getAttribute('value')) || '';
+        if (attr && attr.trim()) {
+          email = attr.trim();
+        }
+      }
+      // fallback 2: find any input[name="email"] inside forgot form or globally
+      if (!email) {
+        const alt = document.querySelector('#forgotPasswordFormContainer input[name="email"]') || document.querySelector('input[name="email"]');
+        if (alt) {
+          email = (alt.value || alt.getAttribute('value') || '').trim();
+        }
+      }
+      // fallback 3: placeholder (unlikely) or innerText of nearby label
+      if (!email) {
+        const ph = emailEl.placeholder || '';
+        if (ph && ph.includes('@')) {
+          email = ph.trim();
+        }
+      }
+
+      if (!email) {
+          showForgotMessage('Vui lòng nhập email', true);
+        return;
+      }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    clearForgotMessage();
+
+    try {
+      const res = await fetch('/auth/forgot', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+
+      const text = await res.text();
+      if (res.status === 200) {
+        showForgotMessage('OTP đã được gửi — kiểm tra email (và thư rác).', false);
+        startOtpCooldown(60);
+        document.getElementById('forgotOtp').focus();
+      } else if (res.status === 429) {
+        showForgotMessage(text || 'Vui lòng chờ trước khi yêu cầu mã mới', true);
+        // server indicates cooldown remaining; disable button for 5s to avoid flood
+        startOtpCooldown(5);
+      } else {
+        showForgotMessage(text || 'Lỗi gửi OTP, thử lại sau', true);
+        btn.disabled = false;
+        btn.textContent = 'Get OTP';
+      }
+    } catch (err) {
+      console.error('requestOtpFromModal error', err);
+      showForgotMessage('Lỗi kết nối, kiểm tra server', true);
+      btn.disabled = false;
+      btn.textContent = 'Get OTP';
+    }
+  }
+
+  function startOtpCooldown(seconds) {
+    const btn = document.getElementById('btnGetOtp');
+    if (!btn) return;
+    let remaining = seconds;
+    btn.disabled = true;
+    btn.textContent = `Wait ${remaining}s`;
+    if (otpCooldownTimer) clearInterval(otpCooldownTimer);
+    otpCooldownTimer = setInterval(() => {
+      remaining -= 1;
+      if (remaining <= 0) {
+        clearInterval(otpCooldownTimer);
+        otpCooldownTimer = null;
+        btn.disabled = false;
+        btn.textContent = 'Get OTP';
+        return;
+      }
+      btn.textContent = `Wait ${remaining}s`;
+    }, 1000);
+  }
+</script>
