@@ -22,20 +22,47 @@ module.exports = {
   ],
 
   requests: [
-    { 
-      type: 'Repair', status: 'Pending', priority: 'High Priority', 
-      description: 'Leaking faucet in bathroom', 
-      tenant: 'Jane Tenant', room: 'Room 102', date: '3/18/2026' 
+    {
+      id: 1,
+      tenantId: 1,
+      tenant: 'Jane Tenant',
+      type: 'Repair',
+      priority: 'High Priority',
+      title: 'Leaking faucet in bathroom',
+      description: 'Faucet leaking in bathroom sink and dripping constantly.',
+      estimatedCost: 0,
+      status: 'Pending',
+      createdAt: '2026-03-18T09:00:00.000Z',
+      date: '3/18/2026',
+      room: 'Room 102'
     },
-    { 
-      type: 'Installation', status: 'In Progress', priority: 'Medium Priority', 
-      description: 'Install air conditioner', 
-      tenant: 'Bob Smith', room: 'Room 202', date: '3/17/2026' 
+    {
+      id: 2,
+      tenantId: 2,
+      tenant: 'Bob Smith',
+      type: 'Installation',
+      priority: 'Medium Priority',
+      title: 'Install air conditioner',
+      description: 'Need new air conditioner installed before summer.',
+      estimatedCost: 320,
+      status: 'In Progress',
+      createdAt: '2026-03-17T10:30:00.000Z',
+      date: '3/17/2026',
+      room: 'Room 202'
     },
-    { 
-      type: 'Repair', status: 'Completed', priority: 'Low Priority', 
-      description: 'Broken window latch', 
-      tenant: 'Charlie Brown', room: 'Room 305', date: '3/15/2026' 
+    {
+      id: 3,
+      tenantId: 3,
+      tenant: 'Charlie Brown',
+      type: 'Repair',
+      priority: 'Low Priority',
+      title: 'Broken window latch',
+      description: 'Window latch is broken and needs replacement.',
+      estimatedCost: 0,
+      status: 'Completed',
+      createdAt: '2026-03-15T14:20:00.000Z',
+      date: '3/15/2026',
+      room: 'Room 305'
     }
   ],
 

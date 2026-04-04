@@ -4,6 +4,7 @@ const db = require('../config/db');
 const RoomService = require('../services/roomService'); 
 const AccountService = require('../services/accountService');
 const TenantService = require('../services/tenantService');
+const AdminRequestsController = require('../controllers/admin.requests.controller');
 const multer = require('multer');
 const path = require('path');
 
@@ -63,6 +64,12 @@ router.post('/rooms/delete/:id', async (req, res) => {
         res.redirect('/admin/rooms?error=' + encodeURIComponent(error.message));
     }
 });
+
+router.get('/requests', AdminRequestsController.getAllRequests);
+router.post('/requests/:id/start', AdminRequestsController.startRequest);
+router.post('/requests/:id/complete', AdminRequestsController.completeRequest);
+router.put('/requests/:id/start', AdminRequestsController.startRequest);
+router.put('/requests/:id/complete', AdminRequestsController.completeRequest);
 
 router.get('/accounts', async (req, res) => {
     try {
