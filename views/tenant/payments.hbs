@@ -21,9 +21,9 @@
         {{#each invoices}}
         <tr>
           <td class="fw-semibold text-dark">{{id}}</td>
-          <td>{{room}}</td>
+          <td>{{room_id}}</td>
           <td class="fw-bold text-primary">$ {{amount}}</td>
-          <td>{{dueDate}}</td>
+          <td>{{formatDate due_date}}</td>
           <td>
             <span class="badge rounded-pill px-3 py-2 fw-normal
               {{#if (eq status "Pending")}}bg-warning bg-opacity-10 text-warning
@@ -58,8 +58,9 @@
     <h4 class="fw-bold mb-1 text-center text-dark">Select Payment Method</h4>
     <p class="text-center text-muted small mb-4">You are paying <strong class="text-primary fs-5" id="modalAmount">$0</strong> for invoice <strong id="modalInvoiceId">---</strong></p>
 
-    <form method="POST" action="#">
-      
+    <form method="POST" action="/tenant/payments/confirm">
+      <input type="hidden" name="invoiceId" id="modalInvoiceIdInput">
+
       <div class="d-flex flex-column gap-3 mb-4">
         <label class="border rounded-3 p-3 d-flex align-items-center cursor-pointer" style="cursor: pointer;">
           <input type="radio" name="paymentMethod" value="Bank Transfer" class="form-check-input me-3" checked>
@@ -92,6 +93,7 @@
     document.getElementById("paymentModal").style.display = "flex";
     document.getElementById("modalInvoiceId").innerText = invoiceId;
     document.getElementById("modalAmount").innerText = "$ " + amount;
+    document.getElementById("modalInvoiceIdInput").value = invoiceId;
   }
 
   function closePaymentModal() {

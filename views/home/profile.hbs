@@ -1,0 +1,118 @@
+<div class="container py-5">
+    <div class="card shadow border-0 p-4 rounded-4">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h3 class="fw-bold text-primary m-0">Hồ sơ cá nhân</h3>
+            <button type="button" id="editBtn" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="bi bi-pencil-square me-2"></i>Chỉnh sửa
+            </button>
+        </div>
+
+        <form action="{{#if (eq user.role 'Admin')}}/admin/profile/update{{else}}/tenant/profile/update{{/if}}" method="POST" id="profileForm" enctype="multipart/form-data">
+            <div class="d-flex flex-column align-items-center mb-4">
+                <div class="position-relative" style="width: 120px; height: 120px;">
+                    <img
+                        id="avatarPreview"
+                        src="{{user.avatar_url}}?t={{@root._locals.timestamp}}"
+                        alt="Avatar"
+                        class="rounded-circle border border-3 border-primary shadow"
+                        style="width: 120px; height: 120px; object-fit: cover;"
+                    >
+                    <label
+                        id="avatarEditBtn"
+                        for="avatarInput"
+                        class="position-absolute bottom-0 end-0 bg-primary text-white rounded-circle d-flex align-items-center justify-content-center d-none"
+                        style="width: 34px; height: 34px; cursor: pointer; border: 2px solid white;"
+                        title="Đổi ảnh đại diện"
+                    >
+                        <i class="bi bi-camera-fill" style="font-size: 14px;"></i>
+                    </label>
+                </div>
+                {{! Input file ẩn }}
+                <input
+                    type="file"
+                    id="avatarInput"
+                    name="avatar"
+                    accept="image/*"
+                    class="d-none"
+                >
+                <small id="avatarHint" class="text-muted mt-2 d-none">Nhấn biểu tượng máy ảnh để đổi ảnh</small>
+            </div>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase">Họ và tên</label>
+                    <input type="text" name="full_name" class="form-control" value="{{user.full_name}}" disabled required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase">Số CCCD (Khóa)</label>
+                    <input type="text" name="id_card" class="form-control bg-light" value="{{user.id_card}}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase">Email (Khóa)</label>
+                    <input type="email" name="email" class="form-control bg-light" value="{{user.email}}" readonly>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase">Số điện thoại</label>
+                    <input type="text" name="phone" class="form-control" value="{{user.phone}}" disabled required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase">Ngày sinh</label>
+                    <input type="date" name="dob" class="form-control" value="{{user.dob}}" disabled>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold small text-uppercase">Quê quán</label>
+                    <input type="text" name="hometown" class="form-control" value="{{user.hometown}}" disabled>
+                </div>
+            </div>
+
+            <div id="actionGroup" class="mt-4 d-none">
+                <hr>
+                <button type="submit" class="btn btn-success px-5 rounded-pill shadow-sm">Lưu thay đổi</button>
+                <button type="button" id="cancelBtn" class="btn btn-link text-decoration-none">Hủy bỏ</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const editBtn = document.getElementById('editBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const actionGroup = document.getElementById('actionGroup');
+    const avatarEditBtn = document.getElementById('avatarEditBtn');
+    const avatarHint    = document.getElementById('avatarHint');
+    const avatarInput   = document.getElementById('avatarInput');
+    const avatarPreview = document.getElementById('avatarPreview');
+
+    // Chỉ chọn các input có name và không phải readonly
+    const editableInputs = document.querySelectorAll('#profileForm input[name]:not([readonly])');
+
+    editBtn.addEventListener('click', () => {
+        editableInputs.forEach(input => input.disabled = false);
+        actionGroup.classList.remove('d-none');
+        editBtn.classList.add('d-none');
+        avatarEditBtn.classList.remove('d-none');
+        avatarHint.classList.remove('d-none');
+    });
+
+    cancelBtn.addEventListener('click', () => location.reload());
+
+    avatarInput.addEventListener('change', function () {
+        const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                avatarPreview.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    const form = document.getElementById('profileForm');
+    form.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    editableInputs.forEach(input => input.disabled = false);
+    form.submit();
+});
+
+    
+</script>

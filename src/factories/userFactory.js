@@ -4,7 +4,13 @@ class Tenant {
     this.email = data.email;
     this.phone = data.phone;
     this.password_hash = data.password;
-    this.role = 'Tenant';
+
+    this.id_card = data.id_card;
+    this.dob = data.dob;
+    this.hometown = data.hometown;
+    this.gender = data.gender;
+    this.avatar_url = data.avatar_url || "/img/default-avatar.png";
+    this.role = "Tenant";
     this.is_active = true;
   }
 }
@@ -15,7 +21,13 @@ class Admin {
     this.email = data.email;
     this.phone = data.phone;
     this.password_hash = data.password;
-    this.role = 'Admin';
+
+    this.id_card = data.id_card;
+    this.dob = data.dob;
+    this.hometown = data.hometown;
+    this.gender = data.gender;
+    this.avatar_url = data.avatar_url || "/img/default-avatar.png";
+    this.role = "Admin";
     this.is_active = true;
   }
 }
@@ -23,9 +35,9 @@ class Admin {
 class UserFactory {
   static createUser(role, data) {
     switch (role) {
-      case 'Admin':
+      case "Admin":
         return new Admin(data);
-      case 'Tenant':
+      case "Tenant":
       default:
         return new Tenant(data);
     }

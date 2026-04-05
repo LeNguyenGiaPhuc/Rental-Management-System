@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const rooms = require('../data/mockData').adminRooms;
+const homeController = require('../controllers/home.controller');
 
-router.get('/', (req, res) => {
-  res.render('home/index', {
-    rooms
-  });
-});
+router.get('/', homeController.home);
 
+router.get('/profile', homeController.getProfile);
+router.post('/profile/update', homeController.updateProfile);
 module.exports = router;
