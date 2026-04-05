@@ -8,37 +8,44 @@
   <div class="col-lg-6">
     <div class="card border-0 shadow-sm rounded-4 p-4 h-100">
       <h5 class="fw-bold mb-4 text-dark">Submit New Request</h5>
-      <form action="#" method="POST">
+      <form action="/tenant/requests" method="POST">
         
         <div class="mb-3">
           <label class="form-label fw-semibold small text-dark">Request Type</label>
-          <select class="form-select bg-light border-0 py-2 text-secondary shadow-none" name="type">
+          <select id="requestTypeSelect" class="form-select bg-light border-0 py-2 text-secondary shadow-none" name="type" required>
             <option selected disabled>Select type</option>
             <option value="Repair">Repair</option>
             <option value="Installation">Installation</option>
             <option value="Maintenance">Maintenance</option>
+            <option value="Cleaning">Cleaning</option>
+            <option value="Support">Support</option>
             <option value="Other">Other</option>
           </select>
         </div>
         
         <div class="mb-3">
           <label class="form-label fw-semibold small text-dark">Priority</label>
-          <select class="form-select bg-light border-0 py-2 text-secondary shadow-none" name="priority">
+          <select class="form-select bg-light border-0 py-2 text-secondary shadow-none" name="priority" required>
             <option selected disabled>Select priority</option>
-            <option value="Low">Low Priority</option>
-            <option value="Medium">Medium Priority</option>
-            <option value="High">High Priority</option>
+            <option value="Low Priority">Low Priority</option>
+            <option value="Medium Priority">Medium Priority</option>
+            <option value="High Priority">High Priority</option>
           </select>
         </div>
 
         <div class="mb-3">
           <label class="form-label fw-semibold small text-dark">Title</label>
-          <input type="text" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Brief description of the issue">
+          <input name="title" type="text" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Brief description of the issue" required>
+        </div>
+
+        <div id="estimatedCostGroup" class="mb-3" style="display:none;">
+          <label class="form-label fw-semibold small text-dark">Estimated Cost</label>
+          <input id="estimatedCostInput" name="estimatedCost" type="number" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Only if applicable for Installation" min="0" step="0.01" disabled>
         </div>
 
         <div class="mb-4">
           <label class="form-label fw-semibold small text-dark">Detailed Description</label>
-          <textarea class="form-control bg-light border-0 py-2 shadow-none" rows="3" placeholder="Provide detailed information about your request..."></textarea>
+          <textarea name="description" class="form-control bg-light border-0 py-2 shadow-none" rows="3" placeholder="Provide detailed information about your request..." required></textarea>
         </div>
 
         <button type="submit" class="btn btn-dark w-100 fw-bold py-2 rounded-3 mt-2">
@@ -47,6 +54,28 @@
       </form>
     </div>
   </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      const typeSelect = document.getElementById('requestTypeSelect');
+      const costGroup = document.getElementById('estimatedCostGroup');
+      const costInput = document.getElementById('estimatedCostInput');
+
+      if (!typeSelect || !costGroup || !costInput) return;
+
+      function updateEstimatedCostVisibility() {
+        const isInstallation = typeSelect.value === 'Installation';
+        costGroup.style.display = isInstallation ? 'block' : 'none';
+        costInput.disabled = !isInstallation;
+        if (!isInstallation) {
+          costInput.value = '';
+        }
+      }
+
+      typeSelect.addEventListener('change', updateEstimatedCostVisibility);
+      updateEstimatedCostVisibility();
+    });
+  </script>
 
   <div class="col-lg-6">
     <div class="px-2"> <h5 class="fw-bold mb-4 text-dark">My Requests</h5>
@@ -59,10 +88,10 @@
             <i class="bi bi-check-circle text-success position-absolute top-0 end-0 m-4 fs-5"></i>
           {{/if}}
 
-          <h6 class="fw-bold mb-1 text-dark">{{type}}</h6>
-          <p class="text-muted small mb-3">{{title}}</p>
+          <h6 class="fw-bold mb-1 text-dark">{{title}}</h6>
+          <p class="text-muted small mb-3">{{description}}</p>
           
-          <div class="d-flex align-items-center gap-2">
+          <div class="d-flex align-items-center gap-2 flex-wrap">
             <span class="badge rounded-pill px-3 py-1 fw-normal
               {{#if (eq status "Pending")}}bg-warning bg-opacity-10 text-warning
               {{else if (eq status "In Progress")}}bg-primary bg-opacity-10 text-primary
@@ -77,6 +106,12 @@
               {{else}}text-secondary bg-secondary bg-opacity-10{{/if}}">
               {{priority}}
             </span>
+
+            <span class="badge rounded-pill px-3 py-1 fw-normal bg-secondary bg-opacity-10 text-secondary">{{type}}</span>
+
+            {{#if estimatedCost}}
+              <span class="badge rounded-pill px-3 py-1 fw-normal bg-info bg-opacity-10 text-info">{{formatVND estimatedCost}}</span>
+            {{/if}}
 
             <span class="text-muted small ms-auto fw-medium">{{date}}</span>
           </div>

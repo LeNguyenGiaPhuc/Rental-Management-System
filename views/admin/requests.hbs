@@ -4,51 +4,80 @@
   </h3>
 </div>
 
-<div class="d-flex flex-column gap-4">
-  {{#each requests}}
-  <div class="card border-0 shadow-sm rounded-4 p-4">
-    
-    <div class="d-flex justify-content-between align-items-start mb-2">
-      <div class="d-flex align-items-center flex-wrap gap-2">
-        <h5 class="fw-bold mb-0 me-2 text-dark">{{type}}</h5>
-        
-        <span class="badge rounded-pill px-3 py-2 fw-normal d-flex align-items-center gap-1
-          {{#if (eq status "Pending")}}bg-warning bg-opacity-10 text-warning
-          {{else if (eq status "In Progress")}}bg-primary bg-opacity-10 text-primary
-          {{else}}bg-success bg-opacity-10 text-success{{/if}}">
-          
-          {{#if (eq status "Pending")}}<i class="bi bi-clock"></i>
-          {{else if (eq status "In Progress")}}<i class="bi bi-info-circle"></i>
-          {{else}}<i class="bi bi-check-circle"></i>{{/if}}
-          
-          {{status}}
-        </span>
+{{#if error}}
+<div class="alert alert-danger">{{error}}</div>
+{{/if}}
+{{#if success}}
+<div class="alert alert-success">{{success}}</div>
+{{/if}}
 
-        <span class="badge rounded-pill px-3 py-2 fw-normal
-          {{#if (eq priority "High Priority")}}bg-danger bg-opacity-10 text-danger
-          {{else if (eq priority "Medium Priority")}}bg-warning bg-opacity-10 text-warning
-          {{else}}bg-secondary bg-opacity-10 text-secondary{{/if}}">
-          {{priority}}
-        </span>
-      </div>
-      
-      <div class="d-flex gap-2">
-        <button class="btn btn-outline-secondary rounded-3 px-3 py-1 fw-semibold" style="font-size: 0.9rem;">View</button>
-        {{#if (eq status "Completed")}}
-        {{else}}
-        <button class="btn btn-dark rounded-3 px-3 py-1 fw-semibold" style="font-size: 0.9rem;">Update</button>
-        {{/if}}
-      </div>
+<div class="card border-0 shadow-sm rounded-4 p-4">
+  <form method="GET" action="/admin/requests" class="row g-3 align-items-end mb-4">
+    <div class="col-md-4">
+      <label class="form-label fw-semibold small text-dark">Tenant Name</label>
+      <input type="text" name="tenant" value="{{query.tenant}}" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Search by tenant name">
     </div>
-
-    <p class="mb-3 text-dark fs-6">{{description}}</p>
-
-    <div class="d-flex gap-4 text-muted small">
-      <span>Tenant: <strong class="text-dark">{{tenant}}</strong></span>
-      <span>Room: <strong class="text-dark">{{room}}</strong></span>
-      <span>Date: {{date}}</span>
+    <div class="col-md-3">
+      <label class="form-label fw-semibold small text-dark">Status</label>
+      <select name="status" class="form-select bg-light border-0 py-2 shadow-none">
+        <option value="All" {{#if (eq query.status "All")}}selected{{/if}}>All Statuses</option>
+        <option value="Pending" {{#if (eq query.status "Pending")}}selected{{/if}}>Pending</option>
+        <option value="In Progress" {{#if (eq query.status "In Progress")}}selected{{/if}}>In Progress</option>
+        <option value="Completed" {{#if (eq query.status "Completed")}}selected{{/if}}>Completed</option>
+      </select>
     </div>
-    
+    <div class="col-md-2 d-grid">
+      <button type="submit" class="btn btn-primary">Apply</button>
+    </div>
+  </form>
+
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tenant</th>
+          <th>Type</th>
+          <th>Priority</th>
+          <th>Description</th>
+          <th>Estimated Cost</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each requests}}
+        <tr>
+          <td>{{id}}</td>
+          <td>{{tenant}}</td>
+          <td>{{type}}</td>
+          <td>{{priority}}</td>
+          <td>{{description}}</td>
+          <td>{{#if estimatedCost}}{{formatVND estimatedCost}}{{else}}-{{/if}}</td>
+          <td>
+            <span class="badge rounded-pill px-3 py-1 fw-normal
+              {{#if (eq status "Pending")}}bg-warning bg-opacity-10 text-warning
+              {{else if (eq status "In Progress")}}bg-primary bg-opacity-10 text-primary
+              {{else}}bg-success bg-opacity-10 text-success{{/if}}">
+              {{status}}
+            </span>
+          </td>
+          <td>
+            {{#if (eq status "Pending")}}
+              <form action="/admin/requests/{{id}}/start" method="POST" class="d-inline">
+                <button class="btn btn-sm btn-primary">Start</button>
+              </form>
+            {{else if (eq status "In Progress")}}
+              <form action="/admin/requests/{{id}}/complete" method="POST" class="d-inline">
+                <button class="btn btn-sm btn-success">Complete</button>
+              </form>
+            {{else}}
+              <button class="btn btn-sm btn-secondary" disabled>Completed</button>
+            {{/if}}
+          </td>
+        </tr>
+        {{/each}}
+      </tbody>
+    </table>
   </div>
-  {{/each}}
 </div>

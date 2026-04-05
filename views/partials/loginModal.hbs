@@ -21,14 +21,16 @@
 
     <div id="forgotPasswordFormContainer" style="display: none;">
       <h4 class="fw-bold mb-4 text-center text-dark">Reset Password</h4>
-      <form method="POST" action="/auth/reset-password">
+      <form method="POST" action="/auth/forgot/verify">
         <div class="mb-3">
-          <input type="email" name="email" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Enter your Email" required />
+          <input id="forgotEmail" type="email" name="email" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Enter your Email" required />
         </div>
         
+        <div id="forgotMsg" class="mb-2" style="display:none;color:#dd0f42;font-size:0.9rem"></div>
+
         <div class="d-flex gap-2 mb-3">
-          <input type="text" name="otp" class="form-control bg-light border-0 py-2 shadow-none" placeholder="OTP Code" required />
-          <button type="button" class="btn btn-outline-primary text-nowrap fw-semibold">Get OTP</button>
+          <input id="forgotOtp" type="text" name="code" class="form-control bg-light border-0 py-2 shadow-none" placeholder="OTP Code" required />
+          <button id="btnGetOtp" type="button" class="btn btn-outline-primary text-nowrap fw-semibold" onclick="requestOtpFromModal()">Get OTP</button>
         </div>
 
         <div class="mb-3">
@@ -48,6 +50,5 @@
         </div>
       </form>
     </div>
-
   </div>
 </div>

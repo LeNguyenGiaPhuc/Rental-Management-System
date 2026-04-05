@@ -106,6 +106,10 @@ ALTER TABLE users ADD COLUMN refresh_token TEXT;
 --THÊM CỘT user_id VÀO BẢNG OTP_TOKENS ĐỂ LIÊN KẾT MÃ OTP VỚI NGƯỜI DÙNG CỤ THỂ
 ALTER TABLE otp_tokens ADD COLUMN user_id UUID;
 
+-- Mở rộng cột otp_code để lưu hash (bcrypt) thay vì chỉ 6 ký tự
+-- Trước đây otp_code VARCHAR(6) gây lỗi "value too long for type character varying(6)"
+ALTER TABLE public.otp_tokens ALTER COLUMN otp_code TYPE text;
+
 --THÊM BẢNG LOGIN_LOGS ĐỂ THEO DÕI LỊCH SỬ ĐĂNG NHẬP CỦA NGƯỜI DÙNG
 CREATE TABLE login_logs (
     id SERIAL PRIMARY KEY,
@@ -113,7 +117,6 @@ CREATE TABLE login_logs (
     login_time TIMESTAMPTZ DEFAULT NOW(),
     ip_address VARCHAR(50)
 );
-
 
 ---------------DỮ LIỆU MẪU CHO TESTING----------------
 
