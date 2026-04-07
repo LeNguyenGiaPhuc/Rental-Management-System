@@ -217,15 +217,49 @@ router.get("/payments", async (req, res) => {
         "rooms.room_number as room"
       )
       .orderBy("invoices.created_at", "desc");
+     // ✅ TÍNH STATS
+    let paidTotal = 0;
+    let pendingTotal = 0;
+    let overdueTotal = 0;
 
+    payments.forEach(p => {
+      const amount = Number(p.amount) || 0;
+
+      if (p.status === "Paid") {
+        paidTotal += amount;
+      } else if (p.status === "Pending") {
+        pendingTotal += amount;
+      } else if (p.status === "Overdue") {
+        overdueTotal += amount;
+      }
+    });
     const rooms = await db("rooms")
       .leftJoin("users", "rooms.tenant_id", "users.id")
-      .select("rooms.id", "rooms.room_number", "users.full_name as tenantName");
+      .select("rooms.id", "rooms.room_number", "rooms.price","rooms.tenant_id","users.full_name as tenantName");
+    
+    for (let room of rooms) {
+      if (!room.tenant_id) {  // ✅ skip phòng không có tenant
+        room.otherCost = 0;
+        continue;
+      }
+      
+      const requests = await db("requests")
+        .where({ tenant_id: room.tenant_id, status: "Completed" })
+        .sum("estimated_cost as total")
+        .first();
+      room.otherCost = Number(requests.total) || 0;
+    }
 
     res.render("admin/payments", {
       layout: "admin",
       payments: payments,
-      rooms: rooms
+      rooms: rooms,
+      stats: {
+        paidTotal,
+        pendingTotal,
+        overdueTotal
+      }
+    
     });
 
   } catch (err) {
@@ -237,7 +271,20 @@ router.get("/payments/:id", async (req, res) => {
   const invoice = await db("invoices")
     .where({ id: req.params.id })
     .first();
+    const tenant = await db('users')
+    .where({ id: invoice.tenant_id })
+    .first();
 
+invoice.tenantName = tenant ? tenant.full_name : "Unknown";
   res.render("admin/payment-detail", { invoice });
+});
+router.post("/payments/:id/delete", async (req, res) => {
+  try {
+    await db("invoices").where({ id: req.params.id }).delete();
+    res.redirect("/admin/payments?success=Xóa hóa đơn thành công!");
+  } catch (err) {
+    console.error(err);
+    res.redirect("/admin/payments?error=Lỗi xóa hóa đơn!");
+  }
 });
 module.exports = router;
