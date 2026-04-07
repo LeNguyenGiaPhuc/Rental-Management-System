@@ -1,4 +1,3 @@
-const data = require('../data/mockData');
 const PaymentContext = require('../services/paymentService');
 const db = require('../config/db');
 
