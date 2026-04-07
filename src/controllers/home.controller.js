@@ -1,10 +1,11 @@
-const { rooms } = require('../data/mockData');
 const UserFactory = require('../factories/userFactory');
 const db = require('../config/db');
 
-exports.home = async (req, res) => {
-    const { data: rooms } = await db.from('rooms').select('*');
-    res.render('home/index', { rooms });
+exports.home = (req, res) => {
+  res.render('home/index', {
+    layout: 'main',
+    rooms
+  });
 };
 
 exports.getProfile = async (req, res) => {
