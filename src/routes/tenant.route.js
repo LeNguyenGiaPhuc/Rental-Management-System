@@ -64,17 +64,30 @@ router.post('/requests', async (req, res) => {
   res.redirect('/tenant/requests');
 });
 
-router.get('/rooms', (req, res) => {
-  const { currentRoom, adminRooms } = require('../data/mockData');
-  
-  const availableRooms = adminRooms.filter(room => room.status === 'Available');
+router.get('/rooms', async (req, res) => {
+  try {
+    const tenantId = req.session.user.id;
 
-  res.render('tenant/rooms', { 
-    layout: 'tenant',
-    currentRoom,
-    availableRooms,
-    isRooms: true 
-  });
+    // phòng hiện tại
+    const currentRoom = await db('rooms')
+      .where({ tenant_id: tenantId })
+      .first();
+
+    // phòng trống
+    const availableRooms = await db('rooms')
+      .where({ status: 'Available' });
+
+    res.render('tenant/rooms', { 
+      layout: 'tenant',
+      currentRoom,
+      availableRooms,
+      isRooms: true 
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi server");
+  }
 });
 
 router.get('/payments', async (req, res) => {
