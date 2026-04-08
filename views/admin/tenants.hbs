@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", function() {
         if (rawDate && rawDate.trim() !== '') {
             const dateObj = new Date(rawDate);
             if (!isNaN(dateObj)) {
-                el.innerText = dateObj.toLocaleDateString('vi-VN');
+                el.innerText = dateObj.toLocaleDateString('en-US');
             }
         } else {
             el.innerText = 'Chưa xác định';

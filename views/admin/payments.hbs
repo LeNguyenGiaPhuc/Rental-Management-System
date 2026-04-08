@@ -18,7 +18,7 @@
           class="bi bi-check2 text-success me-1"
         ></i>
         Payments Received</p>
-      <h3 class="fw-bold m-0">$1,750</h3>
+      <h3 class="fw-bold m-0">{{stats.paidTotal}}</h3>
     </div>
   </div>
   <div class="col-md-4">
@@ -27,7 +27,7 @@
           class="bi bi-clock text-warning me-1"
         ></i>
         Pending Payments</p>
-      <h3 class="fw-bold m-0">$780</h3>
+      <h3 class="fw-bold m-0">{{stats.pendingTotal}}</h3>
     </div>
   </div>
   <div class="col-md-4">
@@ -36,7 +36,7 @@
           class="bi bi-x-lg text-danger me-1"
         ></i>
         Overdue Payments</p>
-      <h3 class="fw-bold m-0">$950</h3>
+      <h3 class="fw-bold m-0">{{stats.overdueTotal}}</h3>
     </div>
   </div>
 </div>
@@ -63,9 +63,9 @@
             <td class="fw-semibold text-dark">{{tenantName}}</td>
             <td>{{room}}</td>
             <td class="fw-bold text-dark">${{amount}}</td>
-            <td>{{dueDate}}</td>
-            <td>{{paidDate}}</td>
-            <td>{{method}}</td>
+            <td>{{due_date}}</td>
+            <td>{{paid_date}}</td>
+            <td>{{payment_method}}</td>
             <td>
               {{#if (eq status "Paid")}}
                 <span
@@ -81,9 +81,15 @@
                 ><i class="bi bi-x me-1"></i> Overdue</span>
               {{/if}}
             </td>
-            <td class="text-end"><button
-                class="btn btn-sm fw-bold"
-              >View</button></td>
+            <td class="text-end">
+              <a href="/admin/payments/{{id}}" class="btn btn-sm btn-outline-primary fw-bold">View</a>
+              <form method="POST" action="/admin/payments/{{id}}/delete" style="display:inline;">
+                <button type="submit" class="btn btn-sm btn-outline-danger fw-bold"
+                  onclick="return confirm('Bạn có chắc muốn xóa hóa đơn này không?')">
+                  Delete
+                </button>
+              </form>
+            </td>
           </tr>
         {{/each}}
       </tbody>
@@ -107,58 +113,89 @@
     ></button>
 
     <h4 class="fw-bold mb-4 text-center text-dark">Create New Invoice</h4>
+    <div
+      class="modal-box bg-white p-4 rounded-4 shadow"
+      style="width: 100%; max-width: 550px; position: relative; max-height: 90vh; overflow-y: auto;"
+    >
 
     <form method="POST" action="/admin/payments/create">
 
+      <!-- CHỌN PHÒNG -->
       <div class="mb-3">
         <label class="form-label fw-semibold small text-dark">Select Room</label>
         <select
           class="form-select bg-light border-0 py-2 shadow-none"
-          name="room"
+          name="roomId"
+          id="roomSelect"
           required
         >
           <option selected disabled value="">Choose a room...</option>
           {{#each rooms}}
-            <option value="{{id}}">Room {{id}} - {{tenantName}}</option>
+            <option 
+              value="{{id}}" 
+              data-price="{{price}}"
+              data-other="{{otherCost}}"
+            >
+              Room {{room_number}} - {{tenantName}}
+            </option>
           {{/each}}
         </select>
       </div>
 
+      <!-- TIỀN PHÒNG -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-dark">Room Price</label>
+        <input
+          type="text"
+          id="roomPrice"
+          class="form-control bg-light border-0 py-2"
+          readonly
+        />
+      </div>
+
+      <!-- ĐIỆN -->
       <div class="row">
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold small text-dark">Amount ($)</label>
-          <input
-            type="number"
-            name="amount"
-            class="form-control bg-light border-0 py-2 shadow-none"
-            placeholder="e.g., 850"
-            required
-          />
+          <label class="form-label">Old Electricity</label>
+          <input type="number" name="oldIndex" id="oldIndex" class="form-control" required>
         </div>
+
         <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold small text-dark">Due Date</label>
-          <input
-            type="date"
-            name="dueDate"
-            class="form-control bg-light border-0 py-2 shadow-none"
-            required
-          />
+          <label class="form-label">New Electricity</label>
+          <input type="number" name="newIndex" id="newIndex" class="form-control" required>
         </div>
       </div>
 
-      <div class="mb-4">
-        <label class="form-label fw-semibold small text-dark">Detailed
-          Description</label>
-        <textarea
-          name="description"
-          class="form-control bg-light border-0 py-2 shadow-none"
-          rows="3"
-          placeholder="Rent for April, Water bill, Electricity..."
-        ></textarea>
+      <!-- TIỀN ĐIỆN -->
+      <div class="mb-3">
+        <label class="form-label">Electricity Cost (4000 VND/unit)</label>
+        <input type="text" id="electricityCost" class="form-control bg-light" readonly>
       </div>
 
-      <button type="submit" class="btn btn-dark w-100 py-2 fw-bold rounded-3">
-        <i class="bi bi-save me-2"></i>
+      <!-- TIỀN KHÁC -->
+      <div class="mb-3">
+        <label class="form-label">Other Cost (from requests)</label>
+        <input type="text" id="otherCost" class="form-control bg-light" value="0" readonly>
+      </div>
+
+      <!-- TỔNG -->
+      <div class="mb-4">
+        <label class="form-label fw-bold">Total</label>
+        <input type="text" id="totalAmount" class="form-control bg-light fw-bold" readonly>
+      </div>
+
+      <!-- DUE DATE -->
+      <div class="mb-3">
+        <label class="form-label fw-semibold small text-dark">Due Date</label>
+        <input type="date" name="dueDate" class="form-control" required>
+      </div>
+
+      <!-- DESCRIPTION -->
+      <div class="mb-4">
+        <textarea name="description" class="form-control" placeholder="Description"></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-dark w-100">
         Save Invoice
       </button>
     </form>
@@ -166,8 +203,61 @@
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", function () {
+
   function openCreateInvoiceModal() {
-  document.getElementById("createInvoiceModal").style.display = "flex"; }
+    document.getElementById("createInvoiceModal").style.display = "flex";
+  }
+
   function closeCreateInvoiceModal() {
-  document.getElementById("createInvoiceModal").style.display = "none"; }
+    document.getElementById("createInvoiceModal").style.display = "none";
+  }
+
+  window.openCreateInvoiceModal = openCreateInvoiceModal;
+  window.closeCreateInvoiceModal = closeCreateInvoiceModal;
+
+  const roomSelect = document.getElementById("roomSelect");
+  const roomPriceInput = document.getElementById("roomPrice");
+  const oldIndex = document.getElementById("oldIndex");
+  const newIndex = document.getElementById("newIndex");
+  const electricityCost = document.getElementById("electricityCost");
+  const totalAmount = document.getElementById("totalAmount");
+  const otherCost = document.getElementById("otherCost");
+
+  const ELECTRIC_PRICE = 4000;
+
+  function calculate() {
+    const price = Number(roomPriceInput.value) || 0;
+    const oldVal = Number(oldIndex.value) || 0;
+    const newVal = Number(newIndex.value) || 0;
+    const other = Number(otherCost.value) || 0;
+
+    let electric = 0;
+    if (newVal > oldVal) {
+      electric = (newVal - oldVal) * ELECTRIC_PRICE;
+    }
+
+    electricityCost.value = electric;
+
+    const total = price + electric + other;
+    totalAmount.value = total;
+  }
+
+  roomSelect.addEventListener("change", function () {
+    const selected = this.options[this.selectedIndex];
+    const price = selected.getAttribute("data-price") || 0;
+    const other = selected.getAttribute("data-other") || 0;
+
+    roomPriceInput.value = price;
+    otherCost.value = other;
+
+    //otherCost.value = 0;
+
+    calculate();
+  });
+
+  oldIndex.addEventListener("input", calculate);
+  newIndex.addEventListener("input", calculate);
+
+});
 </script>
