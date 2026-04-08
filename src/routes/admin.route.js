@@ -9,6 +9,8 @@ const multer = require("multer");
 const path = require("path");
 const adminController = require("../controllers/admin.controller");
 
+const auth = require('../middleware/auth');
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "public/uploads/");
@@ -18,7 +20,7 @@ const storage = multer.diskStorage({
   },
 });
 const upload = multer({ storage: storage });
-
+router.use(auth.ensureAuthenticated, auth.ensureRole('Admin'));
 
 router.get('/', (req, res) => {
     res.redirect('/admin/rooms'); 
