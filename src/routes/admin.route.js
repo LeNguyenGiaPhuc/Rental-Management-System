@@ -234,8 +234,9 @@ router.get("/payments", async (req, res) => {
       }
     });
     const rooms = await db("rooms")
-      .leftJoin("users", "rooms.tenant_id", "users.id")
-      .select("rooms.id", "rooms.room_number", "rooms.price","rooms.tenant_id","users.full_name as tenantName");
+      .join("users", "rooms.tenant_id", "users.id") 
+      .select("rooms.id", "rooms.room_number", "rooms.price","rooms.tenant_id","users.full_name as tenantName")
+      .whereNotNull("rooms.tenant_id");
     
     for (let room of rooms) {
       if (!room.tenant_id) {  // ✅ skip phòng không có tenant
