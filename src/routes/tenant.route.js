@@ -77,11 +77,11 @@ router.get('/rooms', async (req, res) => {
     const availableRooms = await db('rooms')
       .where({ status: 'Available' });
 
-    res.render('tenant/rooms', { 
+    res.render('tenant/rooms', {
       layout: 'tenant',
       currentRoom,
       availableRooms,
-      isRooms: true 
+      isRooms: true
     });
 
   } catch (err) {
@@ -92,25 +92,27 @@ router.get('/rooms', async (req, res) => {
 
 router.get('/payments', async (req, res) => {
   try {
-        const invoices = await db('invoices')
-            .where({ tenant_id: req.session.user.id }) // nếu có
-            .orderBy('created_at', 'desc');
+    const invoices = await db('invoices')
+      .join('rooms', 'invoices.room_id', '=', 'rooms.id') // Nối bảng rooms
+      .where({ 'invoices.tenant_id': req.session.user.id }) // Nhớ thêm prefix 'invoices.' để tránh lỗi trùng lặp cột
+      .select('invoices.*', 'rooms.room_number') // Lấy toàn bộ invoice và thêm room_number
+      .orderBy('invoices.created_at', 'desc');
 
-        res.render('tenant/payments', {
-            layout: 'tenant',
-            invoices: invoices,
-            isPayments: true
-        });
+    res.render('tenant/payments', {
+      layout: 'tenant',
+      invoices: invoices,
+      isPayments: true
+    });
 
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Lỗi server");
-    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi server");
+  }
 });
 
 // PROFILE
 router.get('/profile', homeController.getProfile);
-router.post('/profile/update',upload.single('avatar'), homeController.updateProfile);
+router.post('/profile/update', upload.single('avatar'), homeController.updateProfile);
 
 router.post('/payments/confirm', tenantController.confirmPayment);
 module.exports = router;

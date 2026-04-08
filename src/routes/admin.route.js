@@ -274,12 +274,16 @@ router.get("/payments/:id", async (req, res) => {
   const invoice = await db("invoices")
     .where({ id: req.params.id })
     .first();
-    const tenant = await db('users')
+  const tenant = await db('users')
     .where({ id: invoice.tenant_id })
     .first();
 
-invoice.tenantName = tenant ? tenant.full_name : "Unknown";
-  res.render("admin/payment-detail", { invoice });
+  invoice.tenantName = tenant ? tenant.full_name : "Unknown";
+  
+  res.render("admin/payment-detail", { 
+      layout: "admin", 
+      invoice: invoice 
+  }); 
 });
 router.post("/payments/:id/delete", async (req, res) => {
   try {
