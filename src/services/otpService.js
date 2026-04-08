@@ -17,7 +17,7 @@ async function requestOTP({ email, subject, templateText, user_id } = {}) {
   const existing = otpStore.get(email);
   if (existing && existing.lastSent && now - existing.lastSent < SEND_COOLDOWN_MS) {
     const wait = Math.ceil((SEND_COOLDOWN_MS - (now - existing.lastSent)) / 1000);
-    const err = new Error(`Vui lòng chờ ${wait}s trước khi yêu cầu mã mới`);
+    const err = new Error(`Please wait ${wait}s before requesting a new code`);
     err.code = 'TOO_EARLY';
     throw err;
   }
@@ -46,9 +46,9 @@ async function requestOTP({ email, subject, templateText, user_id } = {}) {
     await sendMail({
       to: email,
       subject: subject || 'Your OTP code',
-      text: templateText || `Mã OTP của bạn là: ${code}`
+      text: templateText || `Your OTP code is: ${code}`
     });
-    console.log(' Mail đã gửi thành công tới:', email);
+    console.log('Mail sent to:', email);
   } catch (err) {
     console.error(' Lỗi gửi mail:', err);
     throw err;

@@ -93,7 +93,7 @@
       }
 
       if (!email) {
-          showForgotMessage('Vui lòng nhập email', true);
+          showForgotMessage('Please enter your email', true);
         return;
       }
 
@@ -108,23 +108,22 @@
         body: JSON.stringify({ email })
       });
 
-      const text = await res.text();
-      if (res.status === 200) {
-        showForgotMessage('OTP đã được gửi — kiểm tra email (và thư rác).', false);
+      const data = await res.json().catch(() => null);
+      if (res.ok && data && data.success) {
+        showForgotMessage(data.message || 'OTP sent — check your email (and spam).', false);
         startOtpCooldown(60);
         document.getElementById('forgotOtp').focus();
       } else if (res.status === 429) {
-        showForgotMessage(text || 'Vui lòng chờ trước khi yêu cầu mã mới', true);
-        // server indicates cooldown remaining; disable button for 5s to avoid flood
+        showForgotMessage((data && data.message) || 'Please wait before requesting another code', true);
         startOtpCooldown(5);
       } else {
-        showForgotMessage(text || 'Lỗi gửi OTP, thử lại sau', true);
+        showForgotMessage((data && data.message) || 'Error sending OTP, try again later', true);
         btn.disabled = false;
         btn.textContent = 'Get OTP';
       }
     } catch (err) {
       console.error('requestOtpFromModal error', err);
-      showForgotMessage('Lỗi kết nối, kiểm tra server', true);
+      showForgotMessage('Connection error, check the server', true);
       btn.disabled = false;
       btn.textContent = 'Get OTP';
     }
@@ -149,4 +148,86 @@
       btn.textContent = `Wait ${remaining}s`;
     }, 1000);
   }
+</script>
+
+<script>
+  // Generic login message in modal
+  function showLoginMessage(text, isError = true) {
+    const el = document.getElementById('loginMsg');
+    if (!el) return;
+    el.style.display = 'block';
+    el.style.color = isError ? '#d63384' : '#198754';
+    el.textContent = text;
+  }
+
+  // Intercept login form submit to show message instead of blank page
+  (function attachAuthHandlers() {
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        showLoginMessage('', false);
+        const form = e.currentTarget;
+        const fd = new FormData(form);
+        const body = { phone: fd.get('phone'), password: fd.get('password') };
+        const submitBtn = form.querySelector('button[type="submit"]');
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Logging in...'; }
+        try {
+          const res = await fetch(form.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+          const data = await res.json().catch(() => null);
+          if (res.ok && data && data.success) {
+            window.location.href = data.redirect || '/';
+            return;
+          }
+          showLoginMessage((data && data.message) || 'Login failed', true);
+        } catch (err) {
+          console.error('Login error', err);
+          showLoginMessage('Connection error, try again', true);
+        } finally {
+          if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Login'; }
+        }
+      });
+    }
+
+    const verifyForm = document.getElementById('forgotVerifyForm');
+    if (verifyForm) {
+      verifyForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        clearForgotMessage();
+        const fd = new FormData(e.currentTarget);
+        const email = fd.get('email');
+        const code = fd.get('code');
+        const newPassword = fd.get('newPassword');
+        const confirm = fd.get('confirmPassword');
+        if (!email || !code || !newPassword) {
+          showForgotMessage('Please fill in all fields', true);
+          return;
+        }
+        if (newPassword !== confirm) {
+          showForgotMessage('Passwords do not match', true);
+          return;
+        }
+        const btn = verifyForm.querySelector('button[type="submit"]');
+        if (btn) { btn.disabled = true; btn.textContent = 'Updating...'; }
+        try {
+          const res = await fetch(verifyForm.action, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email, code, newPassword }) });
+          const data = await res.json().catch(() => null);
+          if (res.ok && data && data.success) {
+            showForgotMessage(data.message || 'Password updated', false);
+            setTimeout(() => {
+              // switch back to login form
+              toggleForgotForm();
+            }, 1200);
+            return;
+          }
+          showForgotMessage((data && data.message) || 'Failed to update password', true);
+        } catch (err) {
+          console.error('Reset password error', err);
+          showForgotMessage('Connection error, try again', true);
+        } finally {
+          if (btn) { btn.disabled = false; btn.textContent = 'Update Password'; }
+        }
+      });
+    }
+  })();
 </script>
