@@ -23,7 +23,7 @@ const RequestService = require('../services/requestService');
 router.use(auth.ensureAuthenticated, auth.ensureRole('Tenant'));
 
 router.get('/', (req, res) => {
-  res.redirect('/tenant/requests');
+  res.redirect('/tenant/rooms');
 });
 
 router.get('/requests', async (req, res) => {
@@ -67,21 +67,75 @@ router.post('/requests', async (req, res) => {
 router.get('/rooms', async (req, res) => {
   try {
     const tenantId = req.session.user.id;
+    const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
+    const pageSize = 4;
+    const defaultImage = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80';
 
-    // phòng hiện tại
-    const currentRoom = await db('rooms')
-      .where({ tenant_id: tenantId })
+    // phòng hiện tại dựa trên hợp đồng đang active
+    const currentRoomRow = await db('contracts')
+      .join('rooms', 'contracts.room_id', 'rooms.id')
+      .where('contracts.tenant_id', tenantId)
+      .andWhere('contracts.status', 'Active')
+      .select(
+        'rooms.*',
+        'contracts.start_date',
+        'contracts.end_date'
+      )
       .first();
 
-    // phòng trống
-    const availableRooms = await db('rooms')
-      .where({ status: 'Available' });
+    const currentRoom = currentRoomRow ? {
+      room_number: currentRoomRow.room_number,
+      floor: currentRoomRow.floor,
+      price: currentRoomRow.price,
+      status: currentRoomRow.status,
+      image: currentRoomRow.image_url || defaultImage,
+      description: currentRoomRow.description,
+      location: `Floor ${currentRoomRow.floor}`,
+      leaseStart: currentRoomRow.start_date ? new Date(currentRoomRow.start_date).toLocaleDateString('en-CA') : null,
+      leaseEnd: currentRoomRow.end_date ? new Date(currentRoomRow.end_date).toLocaleDateString('en-CA') : null,
+      amenities: currentRoomRow.description ? currentRoomRow.description.split(',').map(item => item.trim()) : [],
+      landlord: 'Landlord',
+      contact: req.session.user.email || req.session.user.phone || 'No contact'
+    } : null;
+
+    const [{ count }] = await db('rooms')
+      .where({ status: 'Available' })
+      .count('id as count');
+
+    const totalRooms = parseInt(count, 10) || 0;
+    const totalPages = Math.max(Math.ceil(totalRooms / pageSize), 1);
+    const currentPage = Math.min(page, totalPages);
+
+    const availableRooms = (await db('rooms')
+      .where({ status: 'Available' })
+      .orderBy('room_number', 'asc')
+      .limit(pageSize)
+      .offset((currentPage - 1) * pageSize))
+      .map(room => ({
+        room_number: room.room_number,
+        floor: room.floor,
+        price: room.price,
+        status: room.status,
+        image: room.image_url || defaultImage,
+        description: room.description,
+        location: `Floor ${room.floor}`
+      }));
 
     res.render('tenant/rooms', {
       layout: 'tenant',
       currentRoom,
       availableRooms,
-      isRooms: true
+      isRooms: true,
+      pagination: {
+        currentPage,
+        totalPages,
+        pageSize,
+        totalRooms,
+        hasPrev: currentPage > 1,
+        hasNext: currentPage < totalPages,
+        prevPage: Math.max(currentPage - 1, 1),
+        nextPage: Math.min(currentPage + 1, totalPages)
+      }
     });
 
   } catch (err) {

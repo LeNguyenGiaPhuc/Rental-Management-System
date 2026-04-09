@@ -45,7 +45,7 @@ router.post("/login", async (req, res) => {
 
       // Respond with JSON so client can redirect from browser-side
       let redirect = '/';
-      if (user.role === 'Tenant') redirect = '/tenant';
+      if (user.role === 'Tenant') redirect = '/tenant/rooms';
       if (user.role === 'Admin') redirect = '/admin';
       return res.json({ success: true, redirect });
     });

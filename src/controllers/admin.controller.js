@@ -1,5 +1,6 @@
 const db = require('../config/db'); 
 const PaymentContext = require('../services/paymentService');
+const RoomFactory = require('../factories/roomFactory');
 
 exports.accounts = async (req, res) => {
     try {
@@ -17,10 +18,11 @@ exports.accounts = async (req, res) => {
 
 exports.rooms = async (req, res) => {
     try {
-        const rooms = await db('rooms').select('*').orderBy('room_number', 'asc');
+        const roomsData = await db('rooms').select('*').orderBy('room_number', 'asc');
+        const rooms = roomsData.map(roomData => RoomFactory.fromDatabase(roomData));
         res.render('admin/rooms', { 
             layout: 'admin',
-            rooms 
+            rooms: rooms.map(room => room.toPlainObject())
         });
     } catch (err) {
         res.status(500).send("Lỗi tải danh sách phòng");

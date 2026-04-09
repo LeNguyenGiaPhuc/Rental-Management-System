@@ -1,3 +1,5 @@
+const Room = require('../models/Room');
+
 class RoomFactory {
   static create(roomData, imageUrl = null) {
     if (!roomData.room_number || !roomData.floor || !roomData.price) {
@@ -9,7 +11,7 @@ class RoomFactory {
       throw new Error("Số tầng không hợp lệ!");
     }
 
-    return {
+    const roomObj = {
       room_number: roomData.room_number,
       floor: floor,
       price: parseFloat(roomData.price),
@@ -17,6 +19,12 @@ class RoomFactory {
       description: roomData.description || '',
       image_url: imageUrl
     };
+
+    return new Room(roomObj);
+  }
+
+  static fromDatabase(data) {
+    return new Room(data);
   }
 }
 

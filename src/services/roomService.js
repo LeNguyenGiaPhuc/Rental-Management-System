@@ -21,10 +21,10 @@ class RoomService {
     const newRoom = RoomFactory.create(roomData, imageUrl);
 
     const [insertedRoom] = await db('rooms')
-      .insert(newRoom)
+      .insert(newRoom.toPlainObject())
       .returning('*');
 
-    return insertedRoom;
+    return RoomFactory.fromDatabase(insertedRoom);
   }
 
   static async updateRoom(roomId, updateData, fileData) {
@@ -44,10 +44,12 @@ class RoomService {
         updatedFields.image_url = '/uploads/' + fileData.filename;
       }
 
-      const [updatedRoom] = await db('rooms')
+      const [updatedRoomData] = await db('rooms')
         .where('room_number', roomId)
         .update(updatedFields)
         .returning('*');
+
+      return RoomFactory.fromDatabase(updatedRoomData);
 
       return updatedRoom;
 
@@ -57,16 +59,18 @@ class RoomService {
   }
     static async deleteRoom(roomId) {
     try {
-      const room = await db('rooms')
+      const roomData = await db('rooms')
         .where('room_number', roomId)
         .first();
 
-      if (!room) {
+      if (!roomData) {
         throw new Error("Phòng không tồn tại!");
       }
 
-      if (room.status === 'Occupied') {
-        throw new Error("Không thể xóa phòng đang có người thuê!");
+      const room = RoomFactory.fromDatabase(roomData);
+
+      if (!room.canDelete()) {
+        throw new Error("Không thể xóa phòng với trạng thái hiện tại!");
       }
 
       await db('rooms')
@@ -79,12 +83,112 @@ class RoomService {
       throw new Error("Lỗi khi xóa phòng!");
     }
   }
+
+  static async rentRoom(roomId) {
+    try {
+      const roomData = await db('rooms')
+        .where('room_number', roomId)
+        .first();
+
+      if (!roomData) {
+        throw new Error("Phòng không tồn tại!");
+      }
+
+      const room = RoomFactory.fromDatabase(roomData);
+      room.rent();
+
+      const updatedData = room.toPlainObject();
+      await db('rooms')
+        .where('room_number', roomId)
+        .update({ status: updatedData.status });
+
+      return room;
+    } catch (error) {
+      throw new Error("Lỗi khi thuê phòng!");
+    }
+  }
+
+  static async releaseRoom(roomId) {
+    try {
+      const roomData = await db('rooms')
+        .where('room_number', roomId)
+        .first();
+
+      if (!roomData) {
+        throw new Error("Phòng không tồn tại!");
+      }
+
+      const room = RoomFactory.fromDatabase(roomData);
+      room.release();
+
+      const updatedData = room.toPlainObject();
+      await db('rooms')
+        .where('room_number', roomId)
+        .update({ status: updatedData.status });
+
+      return room;
+    } catch (error) {
+      throw new Error("Lỗi khi trả phòng!");
+    }
+  }
+
+  static async startMaintenance(roomId) {
+    try {
+      const roomData = await db('rooms')
+        .where('room_number', roomId)
+        .first();
+
+      if (!roomData) {
+        throw new Error("Phòng không tồn tại!");
+      }
+
+      const room = RoomFactory.fromDatabase(roomData);
+      room.startMaintenance();
+
+      const updatedData = room.toPlainObject();
+      await db('rooms')
+        .where('room_number', roomId)
+        .update({ status: updatedData.status });
+
+      return room;
+    } catch (error) {
+      throw new Error("Lỗi khi bắt đầu bảo trì!");
+    }
+  }
+
+  static async endMaintenance(roomId) {
+    try {
+      const roomData = await db('rooms')
+        .where('room_number', roomId)
+        .first();
+
+      if (!roomData) {
+        throw new Error("Phòng không tồn tại!");
+      }
+
+      const room = RoomFactory.fromDatabase(roomData);
+      room.endMaintenance();
+
+      const updatedData = room.toPlainObject();
+      await db('rooms')
+        .where('room_number', roomId)
+        .update({ status: updatedData.status });
+
+      return room;
+    } catch (error) {
+      throw new Error("Lỗi khi kết thúc bảo trì!");
+    }
+  }
 }
 
 const Decorated = {
   createRoom: loggingDecorator(RoomService.createRoom, 'roomService.createRoom'),
   updateRoom: loggingDecorator(RoomService.updateRoom, 'roomService.updateRoom'),
   deleteRoom: loggingDecorator(RoomService.deleteRoom, 'roomService.deleteRoom'),
+  rentRoom: loggingDecorator(RoomService.rentRoom, 'roomService.rentRoom'),
+  releaseRoom: loggingDecorator(RoomService.releaseRoom, 'roomService.releaseRoom'),
+  startMaintenance: loggingDecorator(RoomService.startMaintenance, 'roomService.startMaintenance'),
+  endMaintenance: loggingDecorator(RoomService.endMaintenance, 'roomService.endMaintenance'),
   
   Raw: RoomService
 };
