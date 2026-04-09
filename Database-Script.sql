@@ -97,6 +97,15 @@ INSERT INTO contracts (tenant_id, room_id, start_date, end_date, status) VALUES
   '2024-03-15', '2025-03-15', 'Active'
 );
 
+CREATE TABLE guest_contacts (
+    id SERIAL PRIMARY KEY,
+    guest_name VARCHAR(100) NOT NULL,
+    guest_phone VARCHAR(20) NOT NULL,
+    room_id INT REFERENCES rooms(id) ON DELETE CASCADE,
+    status VARCHAR(20) DEFAULT 'Pending', -- 'Pending' hoặc 'Contacted'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 --THÊM CỘT is_active VÀO BẢNG USERS ĐỂ QUẢN LÝ TÌNH TRẠNG HOẠT ĐỘNG CỦA NGƯỜI DÙNG
 ALTER TABLE users ADD COLUMN is_active BOOLEAN DEFAULT TRUE;
 
