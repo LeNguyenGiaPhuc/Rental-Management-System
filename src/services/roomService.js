@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const RoomFactory = require('../factories/roomFactory');
+const { loggingDecorator } = require('../utils/roomDecorators');
 
 class RoomService {
 
@@ -80,4 +81,12 @@ class RoomService {
   }
 }
 
-module.exports = RoomService;
+const Decorated = {
+  createRoom: loggingDecorator(RoomService.createRoom, 'roomService.createRoom'),
+  updateRoom: loggingDecorator(RoomService.updateRoom, 'roomService.updateRoom'),
+  deleteRoom: loggingDecorator(RoomService.deleteRoom, 'roomService.deleteRoom'),
+  
+  Raw: RoomService
+};
+
+module.exports = Decorated;
