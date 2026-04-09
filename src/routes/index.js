@@ -51,8 +51,8 @@ router.get('/', async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Lỗi lấy dữ liệu phòng:", err);
-    res.status(500).send("Lỗi Server!");
+    console.error("Error fetching room data:", err);
+    res.status(500).send("Server error!");
   }
 });
 
@@ -63,7 +63,7 @@ router.get('/room/:id', async (req, res) => {
     const room = await db('rooms').where('room_number', roomId).first();
 
     if (!room) {
-      return res.status(404).send('Không tìm thấy phòng trọ này!');
+      return res.status(404).send('This room could not be found!');
     }
 
     let tenantName = null;
@@ -96,8 +96,25 @@ router.get('/room/:id', async (req, res) => {
     });
 
   } catch (err) {
-    console.error("Lỗi lấy chi tiết phòng:", err);
-    res.status(500).send("Lỗi Server!");
+    console.error("Error fetching room details:", err);
+    res.status(500).send("Server error!");
+  }
+});
+
+router.post('/contact-landlord', async (req, res) => {
+  try {
+    const { guest_name, guest_phone, room_number } = req.body;
+    const room = await db('rooms').where('room_number', room_number).first();
+    if (room) {
+      await db('guest_contacts').insert({
+        guest_name,
+        guest_phone,
+        room_id: room.id
+      });
+    }
+res.send(`<script>alert('Request sent successfully! Our admin will contact you shortly.'); window.location.href='/room/${room_number}';</script>`);  } catch (err) {
+    console.error("Error sending contact request:", err);
+    res.status(500).send("Server error!");
   }
 });
 

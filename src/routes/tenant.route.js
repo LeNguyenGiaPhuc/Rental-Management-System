@@ -37,7 +37,7 @@ router.get('/requests', async (req, res) => {
     });
   } catch (error) {
     console.error('Error loading tenant requests:', error.message || error);
-    res.status(500).send('Lỗi server!');
+    res.status(500).send('Server error!');
   }
 });
 
@@ -70,8 +70,6 @@ router.get('/rooms', async (req, res) => {
     const page = Math.max(parseInt(req.query.page, 10) || 1, 1);
     const pageSize = 4;
     const defaultImage = 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?auto=format&fit=crop&w=800&q=80';
-
-    // phòng hiện tại dựa trên hợp đồng đang active
     const currentRoomRow = await db('contracts')
       .join('rooms', 'contracts.room_id', 'rooms.id')
       .where('contracts.tenant_id', tenantId)
@@ -140,16 +138,16 @@ router.get('/rooms', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Lỗi server");
+    res.status(500).send("Server error");
   }
 });
 
 router.get('/payments', async (req, res) => {
   try {
     const invoices = await db('invoices')
-      .join('rooms', 'invoices.room_id', '=', 'rooms.id') // Nối bảng rooms
-      .where({ 'invoices.tenant_id': req.session.user.id }) // Nhớ thêm prefix 'invoices.' để tránh lỗi trùng lặp cột
-      .select('invoices.*', 'rooms.room_number') // Lấy toàn bộ invoice và thêm room_number
+      .join('rooms', 'invoices.room_id', '=', 'rooms.id')
+      .where({ 'invoices.tenant_id': req.session.user.id })
+      .select('invoices.*', 'rooms.room_number')
       .orderBy('invoices.created_at', 'desc');
 
     res.render('tenant/payments', {
@@ -160,11 +158,9 @@ router.get('/payments', async (req, res) => {
 
   } catch (err) {
     console.error(err);
-    res.status(500).send("Lỗi server");
+    res.status(500).send("Server error");
   }
 });
-
-// PROFILE
 router.get('/profile', homeController.getProfile);
 router.post('/profile/update', upload.single('avatar'), homeController.updateProfile);
 

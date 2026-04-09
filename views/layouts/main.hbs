@@ -8,7 +8,6 @@
 </head>
 
 <body>
-
   <nav class="navbar navbar-light bg-white border-bottom px-4 fixed-top shadow-sm">
     <span class="navbar-brand fw-bold">RoomRental</span>
     <button onclick="openModal()" class="btn btn-outline-dark btn-sm">Login</button>
@@ -18,6 +17,8 @@
 
   {{> loginModal}}
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
 
@@ -26,7 +27,6 @@
     document.getElementById("loginModal").style.display = "flex";
     document.getElementById("loginFormContainer").style.display = "block";
     document.getElementById("forgotPasswordFormContainer").style.display = "none";
-    // clear any previous values/messages when opening
     clearLoginFields();
     clearForgotFormFields();
     clearForgotMessage();
@@ -35,7 +35,6 @@
 
   function closeModal() {
     document.getElementById("loginModal").style.display = "none";
-    // clear fields when closing as well
     clearLoginFields();
     clearForgotFormFields();
     clearForgotMessage();
@@ -49,25 +48,20 @@
     if (loginForm.style.display === "none") {
       loginForm.style.display = "block";
       forgotForm.style.display = "none";
-      // clear forgot form when switching back to login
       clearForgotFormFields();
       clearForgotMessage();
       const lm = document.getElementById('loginMsg'); if (lm) { lm.style.display='none'; lm.textContent=''; }
     } else {
       loginForm.style.display = "none";
       forgotForm.style.display = "block";
-      // clear login fields when showing forgot form
       clearLoginFields();
     }
   }
 </script>
 
 <script>
-  // Request OTP from the modal forgot-password form
   let otpCooldownTimer = null;
   function showForgotMessage(text, isError = true) {
-    // Use global alert box instead of inline message
-    // showAuthAlert(title, subtitle, message, isError)
     showAuthAlert('Notice', '', text, isError);
   }
 
@@ -84,21 +78,18 @@
     if (!emailEl || !btn) return;
 
       let email = (emailEl.value || '').trim();
-      // fallback 1: attribute value (in case server rendered value attribute but property empty)
       if (!email) {
         const attr = (emailEl.getAttribute && emailEl.getAttribute('value')) || '';
         if (attr && attr.trim()) {
           email = attr.trim();
         }
       }
-      // fallback 2: find any input[name="email"] inside forgot form or globally
       if (!email) {
         const alt = document.querySelector('#forgotPasswordFormContainer input[name="email"]') || document.querySelector('input[name="email"]');
         if (alt) {
           email = (alt.value || alt.getAttribute('value') || '').trim();
         }
       }
-      // fallback 3: placeholder (unlikely) or innerText of nearby label
       if (!email) {
         const ph = emailEl.placeholder || '';
         if (ph && ph.includes('@')) {
@@ -165,7 +156,6 @@
 </script>
 
 <script>
-  // Utility: clear input fields in forgot form
   function clearForgotFormFields() {
     const container = document.getElementById('forgotPasswordFormContainer');
     if (!container) return;
@@ -176,8 +166,6 @@
     const btn = document.getElementById('btnGetOtp'); if (btn) { btn.disabled = false; btn.textContent = 'Get OTP'; }
     clearForgotMessage();
   }
-
-  // Utility: clear login form fields
   function clearLoginFields() {
     const container = document.getElementById('loginFormContainer');
     if (!container) return;
@@ -187,7 +175,6 @@
   }
 </script>
 
-<!-- Global auth alert box -->
 <div id="authAlertOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:2050;align-items:center;justify-content:center;">
   <div id="authAlertBox" style="background:#fff;padding:18px 18px 14px;border-radius:10px;max-width:460px;width:92%;box-shadow:0 8px 30px rgba(0,0,0,0.25);">
     <h5 id="authAlertTitle" style="margin:0 0 6px;font-weight:700">Notice</h5>
@@ -198,7 +185,6 @@
 </div>
 
 <script>
-  // optional onOk callback will be executed when user presses OK
   let authAlertOnOk = null;
   function showAuthAlert(title, subtitle, message, isError = true, onOk) {
     const overlay = document.getElementById('authAlertOverlay');
@@ -216,7 +202,6 @@
     const ok = document.getElementById('authAlertOk');
     if (ok && !ok._authAlertAttached) {
       ok.addEventListener('click', () => {
-        // call provided callback (if any) when OK clicked
         try {
           if (authAlertOnOk) authAlertOnOk();
         } catch (e) {
@@ -237,7 +222,6 @@
 </script>
 
 <script>
-  // Generic login message in modal
   function showLoginMessage(text, isError = true) {
     const el = document.getElementById('loginMsg');
     if (!el) return;
@@ -245,8 +229,6 @@
     el.style.color = isError ? '#d63384' : '#198754';
     el.textContent = text;
   }
-
-  // Intercept login form submit to show message instead of blank page
   (function attachAuthHandlers() {
     const loginForm = document.getElementById('loginForm');
     if (loginForm) {
@@ -265,7 +247,6 @@
             window.location.href = data.redirect || '/';
             return;
           }
-          // Specific wording for credential errors
           if (data && data.message === 'Wrong credentials') {
             showAuthAlert('Wrong Credentials', 'Invalid username or password', '', true);
           } else {
@@ -305,7 +286,6 @@
           const data = await res.json().catch(() => null);
           if (res.ok && data && data.success) {
               showAuthAlert('Password updated', '', data.message || 'Your password has been updated', false, function () {
-                // switch back to login form when user presses OK
                 toggleForgotForm();
               });
             return;

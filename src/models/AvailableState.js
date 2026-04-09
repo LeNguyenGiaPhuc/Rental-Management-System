@@ -22,7 +22,6 @@ class AvailableState extends RoomState {
   }
 
   release() {
-    // Already available, do nothing
   }
 
   startMaintenance() {
@@ -30,7 +29,6 @@ class AvailableState extends RoomState {
   }
 
   endMaintenance() {
-    // Not in maintenance, do nothing
   }
 }
 

@@ -10,9 +10,16 @@
         <div class="mb-3">
           <input type="text" name="phone" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Phone Number" required />
         </div>
-        <div class="mb-3">
-          <input type="password" name="password" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Password" required />
+        
+        <div class="mb-2">
+          <input type="password" id="loginPassword" name="password" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Password" required />
         </div>
+        
+        <div class="mb-4 d-flex align-items-center">
+          <input type="checkbox" id="showLoginPassword" style="width: 16px; height: 16px; margin: 0 8px 0 0; cursor: pointer; flex-shrink: 0;">
+          <label class="small text-muted fw-medium mb-0" for="showLoginPassword" style="cursor: pointer; user-select: none;">Show password</label>
+        </div>
+
         <button type="submit" class="btn btn-primary w-100 py-2 fw-bold rounded-3 mt-2">Login</button>
         <div class="text-center mt-3">
           <a href="javascript:void(0)" class="text-decoration-none small fw-semibold" onclick="toggleForgotForm()">Forgot password?</a>
@@ -35,11 +42,16 @@
         </div>
 
         <div class="mb-3">
-          <input type="password" name="newPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="New Password" required />
+          <input type="password" id="resetPassword" name="newPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="New Password" required />
         </div>
         
-        <div class="mb-4">
-          <input type="password" name="confirmPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Confirm New Password" required />
+        <div class="mb-2">
+          <input type="password" id="resetConfirmPassword" name="confirmPassword" class="form-control bg-light border-0 py-2 shadow-none" placeholder="Confirm New Password" required />
+        </div>
+
+        <div class="mb-4 d-flex align-items-center">
+          <input type="checkbox" id="showResetPassword" style="width: 16px; height: 16px; margin: 0 8px 0 0; cursor: pointer; flex-shrink: 0;">
+          <label class="small text-muted fw-medium mb-0" for="showResetPassword" style="cursor: pointer; user-select: none;">Show password</label>
         </div>
 
         <button type="submit" class="btn btn-dark w-100 py-2 fw-bold rounded-3">Update Password</button>
@@ -53,3 +65,24 @@
     </div>
   </div>
 </div>
+
+<script>
+  const showLoginPass = document.getElementById('showLoginPassword');
+  if (showLoginPass) {
+    showLoginPass.addEventListener('change', function() {
+      const passInput = document.getElementById('loginPassword');
+      passInput.type = this.checked ? 'text' : 'password';
+    });
+  }
+  const showResetPass = document.getElementById('showForgotPassword');
+  if (showResetPass) {
+    showResetPass.addEventListener('change', function() {
+      const pass1 = document.getElementById('resetPassword');
+      const pass2 = document.getElementById('resetConfirmPassword');
+      const type = this.checked ? 'text' : 'password';
+      
+      if(pass1) pass1.type = type;
+      if(pass2) pass2.type = type;
+    });
+  }
+</script>

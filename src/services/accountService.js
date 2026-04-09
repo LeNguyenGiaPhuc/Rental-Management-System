@@ -113,7 +113,7 @@ class AccountService {
 
     } catch (error) {
       await trx.rollback();
-      throw new Error("Lỗi khi cập nhật account!");
+      throw new Error("Error updating account!");
     }
   }
 
@@ -141,7 +141,7 @@ class AccountService {
 
     } catch (error) {
       await trx.rollback();
-      throw new Error("Lỗi khi xóa account!");
+      throw new Error("Error deleting account!");
     }
   }
 }

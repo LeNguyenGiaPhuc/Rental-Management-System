@@ -3,12 +3,12 @@ const Room = require('../models/Room');
 class RoomFactory {
   static create(roomData, imageUrl = null) {
     if (!roomData.room_number || !roomData.floor || !roomData.price) {
-      throw new Error("Thiếu dữ liệu phòng!");
+      throw new Error("Missing room data!");
     }
 
     const floor = parseInt(roomData.floor);
     if (floor < 1 || floor > 6) {
-      throw new Error("Số tầng không hợp lệ!");
+      throw new Error("Invalid floor number!");
     }
 
     const roomObj = {

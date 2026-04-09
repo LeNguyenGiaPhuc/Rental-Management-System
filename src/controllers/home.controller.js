@@ -31,7 +31,7 @@ exports.getProfile = async (req, res) => {
         });
 
     } catch (err) {
-        console.error("Lỗi Profile:", err);
+        console.error("Profile error:", err);
         res.redirect('/');
     }
 };

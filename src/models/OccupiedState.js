@@ -10,7 +10,7 @@ class OccupiedState extends RoomState {
   }
 
   canMaintain() {
-    return false; // Maybe allow maintenance, but for now false
+    return false;
   }
 
   canDelete() {
@@ -18,7 +18,6 @@ class OccupiedState extends RoomState {
   }
 
   rent() {
-    // Already occupied, do nothing or throw error
     throw new Error('Room is already occupied');
   }
 
@@ -27,12 +26,10 @@ class OccupiedState extends RoomState {
   }
 
   startMaintenance() {
-    // Maybe allow after release, but for now throw error
     throw new Error('Cannot start maintenance on occupied room');
   }
 
   endMaintenance() {
-    // Not in maintenance, do nothing
   }
 }
 

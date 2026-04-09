@@ -81,8 +81,6 @@ const findRequestById = async (id) => {
       .first();
 
     if (!request) return null;
-
-    // Format dữ liệu để phù hợp với UI
     return {
       id: request.id,
       tenantId: request.tenant_id,
@@ -136,8 +134,6 @@ const createRequest = async ({ tenantId, tenant, type, priority, title, descript
 
   try {
     const [insertedRequest] = await db('requests').insert(dbPayload).returning('*');
-
-    // Format dữ liệu để phù hợp với UI
     return {
       id: insertedRequest.id,
       tenantId: insertedRequest.tenant_id,

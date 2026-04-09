@@ -27,8 +27,7 @@
                         <i class="bi bi-camera-fill" style="font-size: 14px;"></i>
                     </label>
                 </div>
-                {{! Input file ẩn }}
-                <input
+<input
                     type="file"
                     id="avatarInput"
                     name="avatar"
@@ -47,7 +46,7 @@
                     <input type="text" name="id_card" class="form-control" value="{{user.id_card}}" disabled required>
             </div>
                 <div class="col-md-6">
-                    <label class="form-label fw-bold small text-uppercase">Email (Khóa)</label>
+                    <label class="form-label fw-bold small text-uppercase">Email (Locked)</label>
                     <input type="email" name="email" class="form-control bg-light" value="{{user.email}}" readonly>
                 </div>
                 <div class="col-md-6">
@@ -81,8 +80,6 @@
     const avatarHint    = document.getElementById('avatarHint');
     const avatarInput   = document.getElementById('avatarInput');
     const avatarPreview = document.getElementById('avatarPreview');
-
-    // Chỉ chọn các input có name và không phải readonly
     const editableInputs = document.querySelectorAll('#profileForm input[name]:not([readonly])');
 
     editBtn.addEventListener('click', () => {

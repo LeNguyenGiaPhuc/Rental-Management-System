@@ -11,8 +11,6 @@ class Room {
     this.description = data.description || '';
     this.image_url = data.image_url;
     this.created_at = data.created_at;
-
-    // Set initial state based on status
     this.setStateFromStatus(data.status || 'Available');
   }
 
@@ -67,8 +65,6 @@ class Room {
   endMaintenance() {
     this.state.endMaintenance();
   }
-
-  // Convert to plain object for database/storage
   toPlainObject() {
     return {
       id: this.id,

@@ -2,8 +2,6 @@ class RoomState {
   constructor(room) {
     this.room = room;
   }
-
-  // Abstract methods
   canRent() {
     throw new Error('canRent method must be implemented');
   }
@@ -19,8 +17,6 @@ class RoomState {
   getStatus() {
     throw new Error('getStatus method must be implemented');
   }
-
-  // Transition methods
   rent() {
     throw new Error('rent method must be implemented');
   }

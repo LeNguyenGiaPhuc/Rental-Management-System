@@ -14,7 +14,7 @@ class MaintenanceState extends RoomState {
   }
 
   canDelete() {
-    return false; // Maybe allow, but for now false
+    return false;
   }
 
   rent() {
@@ -22,11 +22,9 @@ class MaintenanceState extends RoomState {
   }
 
   release() {
-    // Not applicable
   }
 
   startMaintenance() {
-    // Already in maintenance, do nothing
   }
 
   endMaintenance() {

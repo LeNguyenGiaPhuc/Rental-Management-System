@@ -1,0 +1,80 @@
+<div class="container-fluid py-4">
+
+    {{#if error}}
+    <div class="alert alert-danger alert-dismissible fade show rounded-3" role="alert">
+        <strong>Error!</strong> {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{/if}}
+    {{#if success}}
+    <div class="alert alert-success alert-dismissible fade show rounded-3" role="alert">
+        <strong>Success!</strong> {{success}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{/if}}
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3 class="fw-bold m-0"><i class="bi bi-envelope-paper me-2 text-primary"></i>Guest Inquiries</h3>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light text-muted small text-uppercase">
+                        <tr>
+                            <th class="ps-4 py-3">Guest Name</th>
+                            <th class="py-3">Phone Number</th>
+                            <th class="py-3">Interested In</th>
+                            <th class="py-3">Date</th>
+                            <th class="py-3">Status</th>
+                            <th class="text-end pe-4 py-3">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{#each inquiries}}
+                        <tr>
+                            <td class="ps-4 fw-bold text-dark">{{guest_name}}</td>
+                            <td>
+                                <a href="tel:{{guest_phone}}" class="text-decoration-none fw-bold text-primary bg-primary bg-opacity-10 px-3 py-1 rounded-pill">
+                                    <i class="bi bi-telephone-fill me-1"></i> {{guest_phone}}
+                                </a>
+                            </td>
+                            <td><span class="badge bg-secondary bg-opacity-10 text-dark border px-3 py-2">Room {{room_number}}</span></td>
+                            <td class="text-muted small">{{formatDate created_at}}</td>
+                            <td>
+                                <span class="badge rounded-pill px-3 py-2 fw-normal
+                                    {{#if (eq status "Pending")}}bg-warning bg-opacity-10 text-warning
+                                    {{else}}bg-success bg-opacity-10 text-success{{/if}}">
+                                    <i class="bi {{#if (eq status "Pending")}}bi-clock{{else}}bi-check-circle{{/if}} me-1"></i>
+                                    {{status}}
+                                </span>
+                            </td>
+                            <td class="text-end pe-4">
+                                {{#if (eq status "Pending")}}
+                                <form action="/admin/inquiries/{{id}}/contacted" method="POST" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-primary fw-bold rounded-3 px-3 py-2 shadow-sm">
+                                        Mark as Contacted
+                                    </button>
+                                </form>
+                                {{else}}
+                                <button class="btn btn-sm btn-light text-muted fw-semibold rounded-3 px-3 py-2" disabled>
+                                    Done
+                                </button>
+                                {{/if}}
+                            </td>
+                        </tr>
+                        {{else}}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2 text-secondary opacity-50"></i>
+                                <p class="mb-0 fw-medium">No inquiries from guests yet.</p>
+                            </td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -6,7 +6,7 @@
 
   <div class="card border-0 shadow-sm rounded-4 p-4">
 
-    <!-- HEADER -->
+    
     <div class="d-flex justify-content-between align-items-center mb-4">
       <div>
         <h5 class="fw-bold mb-1">Invoice #{{invoice.id}}</h5>
@@ -29,7 +29,7 @@
       </div>
     </div>
 
-    <!-- INFO -->
+    
     <div class="row mb-4">
       <div class="col-md-6">
         <p class="mb-2"><b>Tenant:</b> {{invoice.tenantName}}</p>
@@ -43,7 +43,7 @@
 
     <hr>
 
-    <!-- BREAKDOWN -->
+    
     <h6 class="fw-bold mb-3">Cost Breakdown</h6>
 
     <div class="d-flex justify-content-between mb-2">
@@ -63,7 +63,7 @@
 
     <hr>
 
-    <!-- TOTAL -->
+    
     <div class="d-flex justify-content-between align-items-center">
       <h5 class="fw-bold mb-0">Total</h5>
       <h4 class="fw-bold text-primary mb-0">
@@ -71,7 +71,7 @@
       </h4>
     </div>
 
-    <!-- DESCRIPTION -->
+    
     {{#if invoice.description}}
       <div class="mt-4">
         <h6 class="fw-bold">Description</h6>
@@ -79,7 +79,7 @@
       </div>
     {{/if}}
 
-    <!-- BUTTON -->
+    
     <div class="mt-4 text-end">
       <a href="/admin/payments" class="btn btn-outline-dark px-4 rounded-3">
         ← Back

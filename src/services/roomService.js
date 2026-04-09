@@ -10,7 +10,7 @@ class RoomService {
       .first();
 
     if (existingRoom) {
-      throw new Error("Số phòng đã tồn tại!");
+      throw new Error("Room number already exists!");
     }
 
     let imageUrl = null;
@@ -37,7 +37,7 @@ class RoomService {
       };
 
       if (updatedFields.floor < 1 || updatedFields.floor > 6) {
-        throw new Error("Số tầng phải từ 1 đến 6!");
+        throw new Error("Floor must be between 1 and 6!");
       }
 
       if (fileData) {
@@ -54,7 +54,7 @@ class RoomService {
       return updatedRoom;
 
     } catch (error) {
-      throw new Error("Lỗi khi cập nhật phòng!");
+      throw new Error("Error updating room!");
     }
   }
     static async deleteRoom(roomId) {
@@ -64,13 +64,13 @@ class RoomService {
         .first();
 
       if (!roomData) {
-        throw new Error("Phòng không tồn tại!");
+        throw new Error("Room does not exist!");
       }
 
       const room = RoomFactory.fromDatabase(roomData);
 
       if (!room.canDelete()) {
-        throw new Error("Không thể xóa phòng với trạng thái hiện tại!");
+        throw new Error("Cannot delete room in its current status!");
       }
 
       await db('rooms')
@@ -80,7 +80,7 @@ class RoomService {
       return true;
 
     } catch (error) {
-      throw new Error("Lỗi khi xóa phòng!");
+      throw new Error("Error deleting room!");
     }
   }
 
@@ -91,7 +91,7 @@ class RoomService {
         .first();
 
       if (!roomData) {
-        throw new Error("Phòng không tồn tại!");
+        throw new Error("Room does not exist!");
       }
 
       const room = RoomFactory.fromDatabase(roomData);
@@ -104,7 +104,7 @@ class RoomService {
 
       return room;
     } catch (error) {
-      throw new Error("Lỗi khi thuê phòng!");
+      throw new Error("Error renting room!");
     }
   }
 
@@ -115,7 +115,7 @@ class RoomService {
         .first();
 
       if (!roomData) {
-        throw new Error("Phòng không tồn tại!");
+        throw new Error("Room does not exist!");
       }
 
       const room = RoomFactory.fromDatabase(roomData);
@@ -128,7 +128,7 @@ class RoomService {
 
       return room;
     } catch (error) {
-      throw new Error("Lỗi khi trả phòng!");
+      throw new Error("Error releasing room!");
     }
   }
 
@@ -139,7 +139,7 @@ class RoomService {
         .first();
 
       if (!roomData) {
-        throw new Error("Phòng không tồn tại!");
+        throw new Error("Room does not exist!");
       }
 
       const room = RoomFactory.fromDatabase(roomData);
@@ -152,7 +152,7 @@ class RoomService {
 
       return room;
     } catch (error) {
-      throw new Error("Lỗi khi bắt đầu bảo trì!");
+      throw new Error("Error starting maintenance!");
     }
   }
 
@@ -163,7 +163,7 @@ class RoomService {
         .first();
 
       if (!roomData) {
-        throw new Error("Phòng không tồn tại!");
+        throw new Error("Room does not exist!");
       }
 
       const room = RoomFactory.fromDatabase(roomData);
@@ -176,7 +176,7 @@ class RoomService {
 
       return room;
     } catch (error) {
-      throw new Error("Lỗi khi kết thúc bảo trì!");
+      throw new Error("Error ending maintenance!");
     }
   }
 }

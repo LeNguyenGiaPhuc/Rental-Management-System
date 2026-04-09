@@ -20,14 +20,14 @@ exports.getAllRequests = async (req, res) => {
     });
   } catch (error) {
     console.error('Error loading requests:', error);
-    res.status(500).send('Lỗi server!');
+    res.status(500).send('Server error!');
   }
 };
 
 exports.startRequest = async (req, res) => {
   try {
     await RequestService.startRequest(req.params.id);
-    res.redirect('/admin/requests?success=Yêu cầu đã chuyển sang In Progress thành công');
+    res.redirect('/admin/requests?success=Request status updated to In Progress successfully');
   } catch (error) {
     res.redirect('/admin/requests?error=' + encodeURIComponent(error.message));
   }
@@ -36,7 +36,7 @@ exports.startRequest = async (req, res) => {
 exports.completeRequest = async (req, res) => {
   try {
     await RequestService.completeRequest(req.params.id);
-    res.redirect('/admin/requests?success=Yêu cầu đã hoàn thành thành công');
+    res.redirect('/admin/requests?success=Request completed successfully');
   } catch (error) {
     res.redirect('/admin/requests?error=' + encodeURIComponent(error.message));
   }

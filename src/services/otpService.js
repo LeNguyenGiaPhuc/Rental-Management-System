@@ -26,8 +26,6 @@ async function requestOTP({ email, subject, templateText, user_id } = {}) {
   const { code, stored } = gen.generate();
 
   otpStore.set(email, { stored, lastSent: now });
-
-  // Persist OTP to database (otp_code stores the hash)
   try {
     await db('otp_tokens').insert({
       email,
@@ -38,7 +36,7 @@ async function requestOTP({ email, subject, templateText, user_id } = {}) {
       user_id: user_id || null
     });
   } catch (dbErr) {
-    console.error('Lỗi khi lưu OTP vào DB:', dbErr);
+    console.error('Error saving OTP to database:', dbErr);
     throw dbErr;
   }
 
@@ -50,7 +48,7 @@ async function requestOTP({ email, subject, templateText, user_id } = {}) {
     });
     console.log('Mail sent to:', email);
   } catch (err) {
-    console.error(' Lỗi gửi mail:', err);
+    console.error('Error sending email:', err);
     throw err;
   }
 
@@ -71,7 +69,7 @@ async function verifyOTP({ email, code } = {}) {
           .andWhere('expires_at', '>', new Date())
           .update({ is_used: true });
       } catch (e) {
-        console.error('Lỗi khi cập nhật is_used trong DB:', e);
+        console.error('Error updating is_used in database:', e);
       }
     }
     return ok;
@@ -95,12 +93,12 @@ async function verifyOTP({ email, code } = {}) {
     try {
       await db('otp_tokens').where({ id: row.id }).update({ is_used: true });
     } catch (e) {
-      console.error('Lỗi khi cập nhật is_used trong DB:', e);
+      console.error('Error updating is_used in database:', e);
     }
 
     return true;
   } catch (err) {
-    console.error('Lỗi khi xác thực OTP từ DB:', err);
+    console.error('Error verifying OTP from database:', err);
     return false;
   }
 }
