@@ -5,6 +5,7 @@
 </div>
 
 <h5 class="fw-bold mb-3">Current Room</h5>
+{{#if currentRoom}}
 <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-5">
   <div class="row g-0">
     <div class="col-md-5">
@@ -12,22 +13,26 @@
     </div>
     <div class="col-md-7 p-4 p-lg-5 d-flex flex-column justify-content-center">
       <div class="d-flex justify-content-between align-items-start mb-2">
-        <h2 class="fw-bold text-dark m-0">Room {{currentRoom.id}}</h2>
+        <h2 class="fw-bold text-dark m-0">Room {{currentRoom.room_number}}</h2>
         <span class="badge bg-dark rounded-pill px-3 py-2 fw-normal">{{currentRoom.status}}</span>
       </div>
       
-      <p class="text-muted mb-4"><i class="bi bi-geo-alt me-2"></i>{{currentRoom.location}}</p>
+      <p class="text-muted mb-2"><i class="bi bi-geo-alt me-2"></i>{{currentRoom.location}}</p>
+      <p class="text-muted mb-4"><small>{{currentRoom.description}}</small></p>
       
       <h3 class="text-primary fw-bold mb-4">
         $ {{currentRoom.price}} <span class="text-secondary fs-6 fw-normal">/month</span>
       </h3>
 
       <div class="row mb-4">
+        {{#if currentRoom.leaseStart}}
         <div class="col-sm-12">
           <p class="text-dark mb-1 small fw-bold"><i class="bi bi-calendar3 me-2"></i> Lease: {{currentRoom.leaseStart}} - {{currentRoom.leaseEnd}}</p>
         </div>
+        {{/if}}
       </div>
 
+      {{#if currentRoom.amenities.length}}
       <div class="mb-4">
         <p class="small fw-bold text-muted mb-2">Amenities:</p>
         <div class="d-flex flex-wrap gap-2">
@@ -36,6 +41,7 @@
           {{/each}}
         </div>
       </div>
+      {{/if}}
 
       <div class="mt-auto pt-3 border-top">
         <p class="mb-1 small">Landlord: <strong>{{currentRoom.landlord}}</strong></p>
@@ -44,30 +50,55 @@
     </div>
   </div>
 </div>
+{{else}}
+<div class="alert alert-warning">
+  Bạn chưa có phòng hiện tại.
+</div>
+{{/if}}
 
 <h5 class="fw-bold mb-3">Other Available Rooms</h5>
 <div class="row g-4">
   {{#each availableRooms}}
   <div class="col-md-6">
-    <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-      <div class="position-relative">
-        <img src="{{image}}" class="card-img-top" style="height:200px; object-fit:cover">
-        <span class="badge rounded-pill bg-success bg-opacity-10 text-success position-absolute top-0 end-0 m-3 px-3 py-2 fw-normal">
-          {{status}}
-        </span>
-      </div>
-      <div class="card-body p-4">
-        <h5 class="card-title fw-bold mb-2">Room {{id}}</h5>
-        <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-2"></i>{{location}}</p>
-        <div class="d-flex justify-content-between align-items-center">
-          <p class="text-primary fw-bold mb-0">$ {{price}} <span class="text-secondary small fw-normal">/mo</span></p>
-          <div class="d-flex gap-1">
-             <i class="bi bi-wifi text-muted"></i>
-             <i class="bi bi-snow text-muted"></i>
+    <a href="/room/{{room_number}}" class="text-decoration-none text-reset">
+      <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
+        <div class="position-relative">
+          <img src="{{image}}" class="card-img-top" style="height:200px; object-fit:cover">
+          <span class="badge rounded-pill bg-success bg-opacity-10 text-success position-absolute top-0 end-0 m-3 px-3 py-2 fw-normal">
+            {{status}}
+          </span>
+        </div>
+        <div class="card-body p-4">
+          <h5 class="card-title fw-bold mb-2">Room {{room_number}}</h5>
+          <p class="text-muted small mb-3"><i class="bi bi-geo-alt me-2"></i>{{location}}</p>
+          <p class="text-muted small mb-3">{{description}}</p>
+          <div class="d-flex justify-content-between align-items-center">
+            <p class="text-primary fw-bold mb-0">$ {{price}} <span class="text-secondary small fw-normal">/mo</span></p>
+            <div class="d-flex gap-1">
+              <i class="bi bi-wifi text-muted"></i>
+              <i class="bi bi-snow text-muted"></i>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </a>
   </div>
   {{/each}}
 </div>
+{{#if pagination.totalPages}}
+<div class="d-flex justify-content-between align-items-center mt-4">
+  <div>
+    Trang {{pagination.currentPage}} / {{pagination.totalPages}}
+  </div>
+  <nav aria-label="Page navigation">
+    <ul class="pagination mb-0">
+      <li class="page-item {{#unless pagination.hasPrev}}disabled{{/unless}}">
+        <a class="page-link" href="/tenant/rooms?page={{pagination.prevPage}}" tabindex="-1">Previous</a>
+      </li>
+      <li class="page-item {{#unless pagination.hasNext}}disabled{{/unless}}">
+        <a class="page-link" href="/tenant/rooms?page={{pagination.nextPage}}">Next</a>
+      </li>
+    </ul>
+  </nav>
+</div>
+{{/if}}
