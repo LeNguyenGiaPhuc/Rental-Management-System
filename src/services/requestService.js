@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { withAuth } = require('../utils/withAuth');
 const Request = require('../models/Request');
 
 const mapPriorityForDb = (priority) => {
@@ -7,7 +8,7 @@ const mapPriorityForDb = (priority) => {
   return 'Medium';
 };
 
-const getAllRequests = async ({ status, tenant } = {}) => {
+const getAllRequests = async (user, { status, tenant } = {}) => {
   try {
     let query = db('requests')
       .leftJoin('users', 'requests.tenant_id', 'users.id')
@@ -26,7 +27,9 @@ const getAllRequests = async ({ status, tenant } = {}) => {
       query = query.where('requests.status', status);
     }
 
-    if (tenant && tenant.trim()) {
+    if (user && user.role === 'Tenant') {
+      query = query.where('requests.tenant_id', user.id);
+    } else if (tenant && tenant.trim()) {
       query = query.where('users.full_name', 'ilike', `%${tenant.trim()}%`);
     }
 
@@ -118,11 +121,14 @@ const getTenantRoom = async (tenantId) => {
   return contract ? contract.room_number : null;
 };
 
-const createRequest = async ({ tenantId, tenant, type, priority, title, description, estimatedCost, room }) => {
-  const createdRoom = room || await getTenantRoom(tenantId) || 'Unknown';
+const createRequest = async (user, { tenantId, tenant, type, priority, title, description, estimatedCost, room } = {}) => {
+  // prefer tenantId from verified user if available
+  const resolvedTenantId = tenantId || (user && user.id) || null;
+  const resolvedTenantName = tenant || (user && user.full_name) || 'Tenant';
+  const createdRoom = room || await getTenantRoom(resolvedTenantId) || 'Unknown';
 
   const dbPayload = {
-    tenant_id: tenantId,
+    tenant_id: resolvedTenantId,
     type,
     priority: mapPriorityForDb(priority),
     title,
@@ -137,7 +143,7 @@ const createRequest = async ({ tenantId, tenant, type, priority, title, descript
     return {
       id: insertedRequest.id,
       tenantId: insertedRequest.tenant_id,
-      tenant: tenant,
+      tenant: resolvedTenantName,
       type: insertedRequest.type,
       priority: insertedRequest.priority === 'Low' ? 'Low Priority' :
                 insertedRequest.priority === 'High' ? 'High Priority' : 'Medium Priority',
@@ -159,7 +165,7 @@ const createRequest = async ({ tenantId, tenant, type, priority, title, descript
   }
 };
 
-const startRequest = async (id) => {
+const startRequest = async (user, id) => {
   const rawRequest = await findRequestById(id);
   if (!rawRequest) {
     throw new Error('Request not found');
@@ -182,7 +188,7 @@ const startRequest = async (id) => {
   return rawRequest;
 };
 
-const completeRequest = async (id) => {
+const completeRequest = async (user, id) => {
   const rawRequest = await findRequestById(id);
   if (!rawRequest) {
     throw new Error('Request not found');
@@ -210,8 +216,8 @@ const completeRequest = async (id) => {
 
 module.exports = {
   getAllRequests,
-  createRequest,
-  startRequest,
-  completeRequest,
+  createRequest: withAuth('Tenant', createRequest),
+  startRequest: withAuth('Admin', startRequest),
+  completeRequest: withAuth('Admin', completeRequest),
   findRequestById
 };

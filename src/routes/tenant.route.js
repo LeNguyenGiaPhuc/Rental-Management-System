@@ -28,7 +28,7 @@ router.get('/', (req, res) => {
 
 router.get('/requests', async (req, res) => {
   try {
-    const requests = await RequestService.getAllRequests();
+    const requests = await RequestService.getAllRequests(req.user);
 
     res.render('tenant/requests', {
       layout: 'tenant',
@@ -47,7 +47,7 @@ router.post('/requests', async (req, res) => {
   const tenantName = req.session?.user?.full_name || 'Tenant';
 
   try {
-    await RequestService.createRequest({
+    await RequestService.createRequest(req.user, {
       tenantId,
       tenant: tenantName,
       type,

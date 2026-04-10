@@ -1,10 +1,10 @@
 const db = require('../config/db');
 const RoomFactory = require('../factories/roomFactory');
-const { loggingDecorator } = require('../utils/roomDecorators');
+const { withAuth } = require('../utils/withAuth');
 
 class RoomService {
 
-  static async createRoom(roomData, fileData) {
+  static async createRoom(user, roomData, fileData) {
     const existingRoom = await db('rooms')
       .where('room_number', roomData.room_number)
       .first();
@@ -27,7 +27,7 @@ class RoomService {
     return RoomFactory.fromDatabase(insertedRoom);
   }
 
-  static async updateRoom(roomId, updateData, fileData) {
+  static async updateRoom(user, roomId, updateData, fileData) {
     try {
       const updatedFields = {
         floor: parseInt(updateData.floor),
@@ -57,7 +57,7 @@ class RoomService {
       throw new Error("Error updating room!");
     }
   }
-    static async deleteRoom(roomId) {
+    static async deleteRoom(user, roomId) {
     try {
       const roomData = await db('rooms')
         .where('room_number', roomId)
@@ -84,7 +84,7 @@ class RoomService {
     }
   }
 
-  static async rentRoom(roomId) {
+  static async rentRoom(user, roomId) {
     try {
       const roomData = await db('rooms')
         .where('room_number', roomId)
@@ -108,7 +108,7 @@ class RoomService {
     }
   }
 
-  static async releaseRoom(roomId) {
+  static async releaseRoom(user, roomId) {
     try {
       const roomData = await db('rooms')
         .where('room_number', roomId)
@@ -132,7 +132,7 @@ class RoomService {
     }
   }
 
-  static async startMaintenance(roomId) {
+  static async startMaintenance(user, roomId) {
     try {
       const roomData = await db('rooms')
         .where('room_number', roomId)
@@ -156,7 +156,7 @@ class RoomService {
     }
   }
 
-  static async endMaintenance(roomId) {
+  static async endMaintenance(user, roomId) {
     try {
       const roomData = await db('rooms')
         .where('room_number', roomId)
@@ -182,13 +182,13 @@ class RoomService {
 }
 
 const Decorated = {
-  createRoom: loggingDecorator(RoomService.createRoom, 'roomService.createRoom'),
-  updateRoom: loggingDecorator(RoomService.updateRoom, 'roomService.updateRoom'),
-  deleteRoom: loggingDecorator(RoomService.deleteRoom, 'roomService.deleteRoom'),
-  rentRoom: loggingDecorator(RoomService.rentRoom, 'roomService.rentRoom'),
-  releaseRoom: loggingDecorator(RoomService.releaseRoom, 'roomService.releaseRoom'),
-  startMaintenance: loggingDecorator(RoomService.startMaintenance, 'roomService.startMaintenance'),
-  endMaintenance: loggingDecorator(RoomService.endMaintenance, 'roomService.endMaintenance'),
+  createRoom: withAuth('Admin', RoomService.createRoom),
+  updateRoom: withAuth('Admin', RoomService.updateRoom),
+  deleteRoom: withAuth('Admin', RoomService.deleteRoom),
+  rentRoom: withAuth('Admin', RoomService.rentRoom),
+  releaseRoom: withAuth('Admin', RoomService.releaseRoom),
+  startMaintenance: withAuth('Admin', RoomService.startMaintenance),
+  endMaintenance: withAuth('Admin', RoomService.endMaintenance),
   
   Raw: RoomService
 };

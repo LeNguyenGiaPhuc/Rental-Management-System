@@ -13,43 +13,44 @@ function createBaseGenerator() {
 }
 
 function withExpiry(generator, ttlMs = 5 * 60 * 1000) {
-  const origGenerate = generator.generate.bind(generator);
-  generator.generate = () => {
-    const out = origGenerate();
-    out.expiresAt = Date.now() + ttlMs;
-    return out;
-  };
+  return {
+    generate() {
+      const out = generator.generate();
+      return {
+        ...out,
+        expiresAt: Date.now() + ttlMs
+      };
+    },
 
-  const origValidate = generator.validate.bind(generator);
-  generator.validate = (input, stored) => {
-    if (!stored || !stored.expiresAt) return false;
-    if (Date.now() > stored.expiresAt) return false;
-    return origValidate(input, stored);
+    validate(input, stored) {
+      if (!stored || !stored.expiresAt) return false;
+      if (Date.now() > stored.expiresAt) return false;
+      return generator.validate(input, stored);
+    }
   };
-
-  return generator;
 }
 
 function withHashing(generator) {
-  const origGenerate = generator.generate.bind(generator);
-  generator.generate = () => {
-    const out = origGenerate();
-    const hash = bcrypt.hashSync(out.code, 8);
+  return {
+    generate() {
+      const out = generator.generate();
+      const hash = bcrypt.hashSync(out.code, 8);
 
-    const stored = {
-      hash,
-      expiresAt: out.expiresAt
-    };
-    return { code: out.code, stored };
+      return {
+        code: out.code,
+        stored: {
+          hash,
+          expiresAt: out.expiresAt
+        }
+      };
+    },
+
+    validate(input, stored) {
+      if (!stored || !stored.hash) return false;
+      if (stored.expiresAt && Date.now() > stored.expiresAt) return false;
+      return bcrypt.compareSync(input, stored.hash);
+    }
   };
-
-  generator.validate = (input, stored) => {
-    if (!stored || !stored.hash) return false;
-    if (stored.expiresAt && Date.now() > stored.expiresAt) return false;
-    return bcrypt.compareSync(input, stored.hash);
-  };
-
-  return generator;
 }
 
 function createOTPGenerator({ ttlMs } = {}) {

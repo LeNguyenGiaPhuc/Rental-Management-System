@@ -47,7 +47,7 @@ router.get('/rooms', async (req, res) => {
 });
 router.post('/rooms/add', upload.single('room_image'), async (req, res) => {
     try {
-        await RoomService.createRoom(req.body, req.file);
+      await RoomService.createRoom(req.user, req.body, req.file);
 
         res.redirect('/admin/rooms?success=New room added successfully!');
     } catch (error) {
@@ -57,7 +57,7 @@ router.post('/rooms/add', upload.single('room_image'), async (req, res) => {
 
 router.post('/rooms/edit/:id', upload.single('room_image'), async (req, res) => {
     try {
-        await RoomService.updateRoom(req.params.id, req.body, req.file);
+    await RoomService.updateRoom(req.user, req.params.id, req.body, req.file);
         res.redirect('/admin/rooms?success=Room updated successfully!');
     } catch (error) {
         res.redirect('/admin/rooms?error=' + encodeURIComponent(error.message));
@@ -66,7 +66,7 @@ router.post('/rooms/edit/:id', upload.single('room_image'), async (req, res) => 
 
 router.post('/rooms/delete/:id', async (req, res) => {
     try {
-        await RoomService.deleteRoom(req.params.id);
+      await RoomService.deleteRoom(req.user, req.params.id);
         res.redirect('/admin/rooms?success=Room deleted successfully!');
     } catch (error) {
         res.redirect('/admin/rooms?error=' + encodeURIComponent(error.message));
@@ -104,7 +104,7 @@ router.get("/rooms", async (req, res) => {
 });
 router.post("/rooms/add", upload.single("room_image"), async (req, res) => {
   try {
-    await RoomService.createRoom(req.body, req.file);
+  await RoomService.createRoom(req.user, req.body, req.file);
 
     res.redirect("/admin/rooms?success=New room added successfully!");
   } catch (error) {
@@ -117,7 +117,7 @@ router.post(
   upload.single("room_image"),
   async (req, res) => {
     try {
-      await RoomService.updateRoom(req.params.id, req.body, req.file);
+    await RoomService.updateRoom(req.user, req.params.id, req.body, req.file);
       res.redirect("/admin/rooms?success=Room updated successfully!");
     } catch (error) {
       res.redirect("/admin/rooms?error=" + encodeURIComponent(error.message));
@@ -127,7 +127,7 @@ router.post(
 
 router.post("/rooms/delete/:id", async (req, res) => {
   try {
-    await RoomService.deleteRoom(req.params.id);
+    await RoomService.deleteRoom(req.user, req.params.id);
     res.redirect("/admin/rooms?success=Room deleted successfully!");
   } catch (error) {
     res.redirect("/admin/rooms?error=" + encodeURIComponent(error.message));
