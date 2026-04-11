@@ -22,7 +22,6 @@ class User {
   }
 }
 
-
 class Tenant extends User {
   constructor(data) {
     super(data, "Tenant"); 

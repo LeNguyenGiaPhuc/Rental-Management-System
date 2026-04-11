@@ -39,11 +39,11 @@ exports.createInvoice = async (req, res) => {
       .where({ tenant_id: newInvoice.tenant_id, status: 'Completed' })
       .update({ is_billed: true });
 
-    console.log("✅ Invoice created successfully for tenant:", newInvoice.tenant_id);
+    console.log("Invoice created successfully for tenant:", newInvoice.tenant_id);
     res.redirect('/admin/payments?success=true');
 
   } catch (err) {
-    console.error("❌ Error creating invoice:", err.message);
+    console.error("Error creating invoice:", err.message);
     res.redirect('/admin/payments?error=true');
   }
 };

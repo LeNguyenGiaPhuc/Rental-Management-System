@@ -317,4 +317,40 @@ res.redirect("/admin/inquiries?success=Marked as contacted successfully!");  } c
     res.redirect("/admin/inquiries");
   }
 });
+
+router.get("/revenue", async (req, res) => {
+  try {
+    const invoices = await db('invoices').select('*');
+
+    let totalRevenue = 0;
+    let pendingRevenue = 0;
+    let paidCount = 0;
+
+    let monthlyRevenue = new Array(12).fill(0);
+
+    invoices.forEach(inv => {
+      const amount = Number(inv.amount) || 0;
+      const date = new Date(inv.created_at);
+      const month = date.getMonth(); 
+      if (inv.status === 'Paid') {
+        totalRevenue += amount;
+        paidCount++;
+        monthlyRevenue[month] += amount; 
+      } else if (inv.status === 'Pending') {
+        pendingRevenue += amount;
+      }
+    });
+
+    res.render("admin/revenue", {
+      layout: "admin",
+      totalRevenue,
+      pendingRevenue,
+      paidCount,
+      monthlyRevenue: JSON.stringify(monthlyRevenue) 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Lỗi tải trang doanh thu");
+  }
+});
 module.exports = router;
